@@ -15,7 +15,8 @@ export async function POST(request: Request) {
   const auth = request.headers.get('authorization') ?? '';
   try {
     const origin = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
-    const res = await fetch(`${origin}/.netlify/functions/paystack-initialize`, {
+    const target = new URL('/.netlify/functions/paystack-initialize', origin);
+    const res = await fetch(target, {
       method:'POST', headers:{ 'Content-Type':'application/json', Authorization:auth },
       body: JSON.stringify(body), cache:'no-store',
     });
