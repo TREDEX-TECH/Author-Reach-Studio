@@ -1,0 +1,39 @@
+# dependencies / build output
+node_modules/
+.next/
+.netlify/
+.vercel/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# local env & secrets — NEVER commit real values
+.env
+.env.local
+.env.*.local
+.env.production
+*.pem
+*.key
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# generated dependency caches
+supabase/.temp/
+.playwright-cli/
+npm-debug.log*
+yarn-error.log*
+
+# derived preview images (originals in brand-assets/ are kept)
+brand-assets/preview-*.jpg
+brand-assets/wb-*.jpg
+
+# portable git bundles / archives (generated, keep outside the repo)
+*.bundle
+*.zip
