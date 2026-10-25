@@ -62,7 +62,7 @@
 │   │   │   └── route.ts  (1,366 B, 41 lines)
 │   │   └── payments/
 │   │       └── initialize/
-│   │           └── route.ts  (1,269 B, 27 lines)
+│   │           └── route.ts  (1,304 B, 28 lines)
 │   ├── auth/
 │   │   └── callback/
 │   │       └── route.ts  (637 B, 16 lines)
@@ -216,7 +216,7 @@
 ├── .env.local  (530 B, 13 lines)
 ├── .gitignore  (579 B, 39 lines)
 ├── DRIVE-CONTENTS.md  (6,152 B, 115 lines)
-├── FILE-MANIFEST.md  (20,780 B, 401 lines)
+├── FILE-MANIFEST.md  (20,899 B, 403 lines)
 ├── middleware.ts  (2,245 B, 49 lines)
 ├── netlify.toml  (585 B, 24 lines)
 ├── next-env.d.ts  (262 B, 6 lines)
@@ -237,7 +237,7 @@
 | 2 | `.env.local` | 530 B | 13 |
 | 3 | `.gitignore` | 579 B | 39 |
 | 4 | `DRIVE-CONTENTS.md` | 6,152 B | 115 |
-| 5 | `FILE-MANIFEST.md` | 20,780 B | 401 |
+| 5 | `FILE-MANIFEST.md` | 20,899 B | 403 |
 | 6 | `PUSH-TO-GITHUB.md` | 3,509 B | 80 |
 | 7 | `README.md` | 3,127 B | 64 |
 | 8 | `START-HERE.md` | 6,319 B | 124 |
@@ -267,7 +267,7 @@
 | 32 | `app/admin/settings/page.tsx` | 3,854 B | 58 |
 | 33 | `app/admin/team/page.tsx` | 2,228 B | 32 |
 | 34 | `app/api/inquiry/route.ts` | 1,366 B | 41 |
-| 35 | `app/api/payments/initialize/route.ts` | 1,269 B | 27 |
+| 35 | `app/api/payments/initialize/route.ts` | 1,304 B | 28 |
 | 36 | `app/apple-icon.png` | 11,712 B | 293 |
 | 37 | `app/auth/callback/route.ts` | 637 B | 16 |
 | 38 | `app/globals.css` | 33,388 B | 430 |
