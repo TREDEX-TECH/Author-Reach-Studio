@@ -16,6 +16,13 @@
 
 Still open: **full vs partial payments** and **invite-only vs open registration** — both affect weeks 1–6.
 
+## 0b. Update — Supabase connected (25 Oct 2026)
+
+Since this audit was written, the schema has been applied to a live Supabase project and the
+first two workflows are real: the public service catalogue reads from the DB, and enquiries
+write to CRM through a trusted Edge Function. **See `docs/12-live-supabase-state.md`** for the
+current live state. This document remains the complete list of what is still required.
+
 ## 1. Honest current status
 
 | Area | State today | Reality |

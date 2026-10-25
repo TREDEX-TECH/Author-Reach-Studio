@@ -162,3 +162,18 @@ You confirmed Paystack USD settlement, that most provider accounts exist, and th
 build a **thin vertical slice first (~6–8 weeks)** with a **draft legal entity**. The concrete
 week-by-week plan, the exact inputs I need to start, and the definition of done are in
 **`docs/11-vertical-slice-plan.md`**.
+
+
+---
+
+## 10. Supabase is LIVE (25 Oct 2026)
+
+Your Supabase project `xozbyrzpsopqugobjivs` now has the full schema: **54 tables, all
+RLS-enabled, 62 policies, 5 Storage buckets, 5 migrations, 285 SQL statements**, invite-only
+Auth, an 8-service catalogue, and a working **Enquiry → CRM** workflow (Edge Function writes
+to `public.inquiries`, verified end-to-end). `/`, `/services` and `/services/[slug]` now read
+**live prices and content from Supabase**.
+
+It is NOT fully operational: no users, no Paystack, no email provider, no real domain, no file
+uploads, and the remaining dashboards still use demo data. See
+**`docs/12-live-supabase-state.md`** for exactly what is live and what is still needed.

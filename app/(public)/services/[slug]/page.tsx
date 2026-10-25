@@ -1,23 +1,28 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { services } from '@/lib/demo-data';
+import { getCatalogue, getServiceBySlug } from '@/lib/data/catalogue';
+import { services as demoServices } from '@/lib/demo-data';
 import { Badge, Crumbs } from '@/components/ui';
 import { InquiryForm } from '@/components/inquiry-form';
 
-export function generateStaticParams() { return services.map(s => ({ slug: s.slug })); }
+export async function generateStaticParams() {
+  const { services } = await getCatalogue();
+  return services.map(s => ({ slug: s.slug }));
+}
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: Promise<{slug:string}> }): Promise<Metadata> {
   const { slug } = await params;
-  const s = services.find(x => x.slug === slug);
-  return s ? { title:s.name, description:s.shortPromise } : { title:'Service not found' };
+  const { service } = await getServiceBySlug(slug);
+  return service ? { title:service.name, description:service.shortPromise } : { title:'Service not found' };
 }
 
 export default async function ServiceDetail({ params }: { params: Promise<{slug:string}> }) {
   const { slug } = await params;
-  const s = services.find(x => x.slug === slug);
+  const { services, service: s } = await getServiceBySlug(slug);
   if (!s) notFound();
-  const others = services.filter(x => x.slug !== slug).slice(0,3);
+  const others = (services.length ? services : demoServices).filter(x => x.slug !== slug).slice(0,3);
   return (
     <>
       <section className="page-hero">

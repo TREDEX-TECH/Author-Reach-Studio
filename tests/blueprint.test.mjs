@@ -224,3 +224,28 @@ test('Phase 2 foundation artefacts exist and fail safe', () => {
   assert.match(hardening, /drop policy if exists "org_read"/);
   assert.ok(read('tests/rls-personas.test.mjs').includes('client_a'));
 });
+
+test('live data layer: catalogue + inquiry route use publishable key only, no service-role in browser', () => {
+  const cat = read('lib/data/catalogue.ts');
+  assert.match(cat, /visibility=eq\.published/, 'anon must be restricted to published services');
+  assert.match(cat, /source: 'demo'/, 'must degrade to demo data when backend is absent');
+  assert.ok(!cat.includes('SERVICE_ROLE'), 'catalogue must never use a service-role key');
+
+  const route = read('app/api/inquiry/route.ts');
+  assert.match(route, /functions\/v1\/inquiry/, 'must call the trusted Edge Function');
+  assert.ok(!route.includes('SERVICE_ROLE'), 'route must not use a service-role key');
+  assert.match(route, /status: 503/, 'must fail honestly when unconfigured');
+
+  const form = read('components/inquiry-form.tsx');
+  assert.match(form, /fetch\('\/api\/inquiry'/);
+  assert.ok(!form.includes('demo confirmation'), 'must never claim a message was saved when it was not');
+});
+
+test('migration 004 provisions profiles and enforces the capability matrix', () => {
+  const sql = read('supabase/migrations/20261025000004_auth_and_capabilities.sql');
+  assert.match(sql, /create trigger on_auth_user_created/);
+  assert.match(sql, /insert into public\.role_permissions/);
+  assert.match(sql, /payment_entity_is_configured\(\)/);
+  assert.match(sql, /DRAFT/);
+  assert.ok(!sql.toLowerCase().includes('grant .* to anon') , 'no capability grants to anon');
+});

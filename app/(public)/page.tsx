@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { services, BRAND } from '@/lib/demo-data';
+import { BRAND } from '@/lib/demo-data';
+import { getCatalogue } from '@/lib/data/catalogue';
 import { Badge } from '@/components/ui';
 
 const problems = [
@@ -8,7 +9,8 @@ const problems = [
   { n:'03', t:'Marketing is scattered and unmeasured', b:'Random posts and one-off graphics do not add up to a campaign. You need a plan, a schedule and an honest report of what happened.' },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const { services } = await getCatalogue();
   return (
     <>
       <section className="hero">

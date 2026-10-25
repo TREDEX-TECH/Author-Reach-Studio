@@ -1,18 +1,24 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { services } from '@/lib/demo-data';
+import { getCatalogue } from '@/lib/data/catalogue';
 import { PageHero } from '@/components/ui';
 import { Badge } from '@/components/ui';
 
 export const metadata: Metadata = { title:'Services', description:'Book discoverability, author branding, creative production, launch campaigns and marketing support for authors.' };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const { services, source } = await getCatalogue();
   const groups = Array.from(new Set(services.map(s => s.category)));
   return (
     <>
       <PageHero eyebrow="Service catalogue" title="Services built around how readers find books."
         lead="Every service has a defined scope, clear deliverables and an honest statement of what it can and cannot do. Pricing is either published as a starting point or provided by proposal — and the catalogue is managed by our administrators, so it stays current."
         crumbs={[{label:'Services'}]} />
+      {source === 'live' && (
+        <div className="container" style={{paddingTop:18}}>
+          <span className="badge badge-ok">● Live catalogue — managed in Supabase</span>
+        </div>
+      )}
       <section className="section">
         <div className="container stack" style={{gap:48}}>
           {groups.map(g => (

@@ -22,7 +22,7 @@ export function InquiryForm({ variant = 'general' }: { variant?: 'general'|'serv
       consent: fd.get('consent') === 'on', website: fd.get('website'),
     };
     try {
-      const res = await fetch('/.netlify/functions/inquiry', {
+      const res = await fetch('/api/inquiry', {
         method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
@@ -30,17 +30,11 @@ export function InquiryForm({ variant = 'general' }: { variant?: 'general'|'serv
         setState({ status:'ok', message: data.message ?? 'Thank you — we have your message.', reference: data.reference });
         form.reset(); setService('');
       } else {
-        // In demo mode the function is not deployed; show an honest local confirmation.
-        if (res.status === 404 || res.status === 502 || res.status === 503) {
-          setState({ status:'ok', message:'Thank you — your enquiry has been recorded (demo confirmation; no email was sent).', reference:'DEMO-INQ-0001' });
-          form.reset();
-        } else {
-          setState({ status:'error', message: data.error ?? 'Something went wrong. Please try again.' });
-        }
+        // Never claim a message was saved when it was not.
+        setState({ status:'error', message: data.error ?? 'Something went wrong. Please try again.' });
       }
     } catch {
-      setState({ status:'ok', message:'Thank you — your enquiry has been recorded (demo confirmation; no email was sent).', reference:'DEMO-INQ-0001' });
-      form.reset();
+      setState({ status:'error', message:'We could not reach the enquiry service. Please try again or email us directly.' });
     }
   }
 
