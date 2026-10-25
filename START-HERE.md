@@ -142,3 +142,13 @@ inventory. Open `/design-system` in the live preview to review and toggle themes
 
 Still needed for pixel-perfect branding: a vector (SVG/AI) ARS logo, your official brand hex
 if it differs from the sampled orange, and any corporate font files.
+
+
+---
+
+## 8. Want it fully operational?
+
+Read **`docs/10-operational-readiness.md`** — it is the complete answer to "what do we
+need to make this actually work?". It lists the current gaps (demo data, no auth, no live
+DB/storage/email/payments), the six buckets of inputs needed from you, the Phase 2–8 build
+plan, the minimum checklist to unblock Phase 2, and the definition of "fully operational".

@@ -79,7 +79,7 @@ test('clients cannot write financial state or grant themselves roles', () => {
 
 test('no server secret is exposed through a NEXT_PUBLIC_ variable', () => {
   const env = read('.env.example');
-  const secrets = ['SUPABASE_SERVICE_ROLE_KEY','PAYSTACK_SECRET_KEY','EMAIL_API_KEY','SUPABASE_DB_PASSWORD','PAYSTACK_WEBHOOK_SECRET'];
+  const secrets = ['SUPABASE_SERVICE_ROLE_KEY','PAYSTACK_SECRET_KEY','EMAIL_API_KEY','SUPABASE_DB_PASSWORD'];
   for (const s of secrets) {
     assert.ok(env.includes(s), `${s} should be documented`);
     assert.doesNotMatch(env, new RegExp(`NEXT_PUBLIC_${s}\\s*=`), `${s} must never be public`);

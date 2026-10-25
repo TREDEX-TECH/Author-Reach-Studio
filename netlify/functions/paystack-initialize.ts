@@ -28,8 +28,9 @@ export async function handler(event: FnEvent) {
     const { data: allowed, error: authErr } = await sb.rpc('is_invoice_payable_by', {
       p_invoice_id: invoiceId, p_user_id: caller.userId,
     });
-    // NOTE: create this SECURITY DEFINER RPC in the next migration. Until then,
-    // fall back to an explicit join check (below) rather than trusting RLS alone.
+    // SECURITY DEFINER RPC `is_invoice_payable_by` is defined in
+    // supabase/migrations/20261025000001_security_rpcs.sql (service_role only).
+    // If it is missing, the explicit join check below still enforces ownership.
     if (authErr) console.warn('rpc_missing_is_invoice_payable_by', authErr.message);
     if (allowed === false) return json(403, { error: 'This invoice does not belong to your account.' });
 
