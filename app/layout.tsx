@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { SITE } from '@/lib/config';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://authorreachstudio.com'),
+  metadataBase: new URL(SITE.url),
   title: { default:'Author Reach Studio', template:'%s | Author Reach Studio' },
   description: 'Book discoverability, author brand development, launch campaigns and marketing support for authors. A specialist brand of Tredex.',
   keywords: ['book marketing','author brand','book discoverability','book launch','Amazon A+ Content','author website'],

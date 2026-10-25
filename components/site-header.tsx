@@ -15,7 +15,6 @@ export function SiteHeader() {
         </nav>
         <div className="header-cta">
           <ThemeToggle />
-          <Link href="/design-system" className="btn btn-outline btn-sm">Design system</Link>
           <Link href="/sign-in" className="btn btn-outline btn-sm">Client sign in</Link>
           <Link href="/contact" className="btn btn-primary btn-sm">Start a project →</Link>
         </div>
@@ -25,7 +24,6 @@ export function SiteHeader() {
             {publicNav.map(n => <Link key={n.href} href={n.href}>{n.label}</Link>)}
             <Link href="/contact">Contact</Link>
             <Link href="/sign-in">Client sign in</Link>
-            <Link href="/design-system">Design system</Link>
           </div>
         </details>
       </div>

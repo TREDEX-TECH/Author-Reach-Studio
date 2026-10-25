@@ -1,26 +1,29 @@
 import Link from 'next/link';
-import { AppHead } from '@/components/module-view';
-import { Panel, EmptyState } from '@/components/ui';
-export default function PortalMessages(){
+import { AppHead, KpiRow } from '@/components/module-view';
+import { Panel, Badge } from '@/components/ui';
+import { EmptyRecords } from '@/components/empty-records';
+import { getSnapshot } from '@/lib/data/live';
+import { SITE } from '@/lib/config';
+export default async function PortalMessages(){
+  const s = await getSnapshot();
+  const clientMessages = s.messages.filter(m=>/client/i.test(m.visibility));
+  const internalMessages = s.messages.filter(m=>/internal|staff/i.test(m.visibility));
   return <>
-    <AppHead title="Messages" subtitle="Project-scoped conversations with the team working on your engagement."/>
+    <AppHead title="Messages" subtitle="Talk to your team. Internal staff discussions and private business notes are never visible to clients."/>
+    <KpiRow items={[{label:'Conversations',value:String(s.conversations.length)},
+      {label:'Client-visible messages',value:String(clientMessages.length)},
+      {label:'Staff-only messages',value:String(internalMessages.length)},
+      {label:'Support email',value:SITE.email}]}/>
     <div className="split">
-      <Panel title="The Salt Road — launch" flush>
-        <div style={{padding:20}}>
-          <div className="msg"><span className="avatar" style={{width:30,height:30,fontSize:'.7rem'}}>TA</span><div className="body"><div className="meta">Tola Adebayo · Project Manager · 24 Oct, 09:14</div>Hi Amara — the launch creative pack is ready for your review in Files &amp; deliverables. Could you approve it or send revision notes by Tuesday so we stay on schedule?</div></div>
-          <div className="msg mine"><span className="avatar" style={{width:30,height:30,fontSize:'.7rem'}}>AN</span><div className="body"><div className="meta">You · 24 Oct, 10:02</div>Thanks Tola. I’ll look at it tonight. One question: can we get the square versions for Instagram as well?</div></div>
-          <div className="msg"><span className="avatar" style={{width:30,height:30,fontSize:'.7rem'}}>AB</span><div className="body"><div className="meta">Aisha Bello · Creative Design · 24 Oct, 10:41</div>Yes — I’ve added 1:1 exports to version 3. They’re in the same zip file.</div></div>
-          <div className="row" style={{marginTop:20}}><input placeholder="Write a message…" aria-label="Message"/><Link href="/portal/messages" className="btn btn-primary btn-sm">Send</Link></div>
-        </div>
+      <Panel title="Your conversations">
+        {s.conversations.length ? s.conversations.map(c=><div className="file-row" key={c.id}><span className="file-ico">◇</span><span style={{flex:1}}><strong style={{fontSize:'.86rem'}}>{c.subject}</strong><span className="small faint" style={{display:'block'}}>{c.project} · {c.messages} messages · {c.kind}</span></span></div>)
+          : <EmptyRecords noun="conversations" body="Start a conversation with your team here. Internal-only notes and private staff discussions are never shown to clients." href="/contact" action="Contact us →" />}
       </Panel>
-      <div>
-        <Panel title="Conversations">
-          {[['The Salt Road — launch','3 messages','Active'],['Author platform refresh','1 message','Active']].map(([t,s,st])=>(
-            <div className="file-row" key={t}><span className="file-ico">◉</span><span style={{flex:1}}><strong style={{fontSize:'.85rem'}}>{t}</strong><span className="small faint" style={{display:'block'}}>{s} · {st}</span></span></div>
-          ))}
-        </Panel>
-        <Panel title="Privacy"><p className="small muted" style={{margin:0}}>These conversations are scoped to your projects. Internal staff notes and other clients’ conversations are never visible to you. A signed-in client cannot read another client’s messages by changing an ID.</p></Panel>
-      </div>
+      <Panel title="Client-visible discussion">
+        {clientMessages.length ? clientMessages.map(m=><div className="msg" key={m.id}><div className="msg-head"><strong>{m.sender}</strong><span>{m.when}</span><Badge tone="ok">Shared</Badge></div><p>{m.body}</p></div>)
+          : <p className="small faint" style={{margin:0}}>No client-visible messages yet. Conversations shared with you will appear here; internal staff notes remain private.</p>}
+        <div className="row" style={{marginTop:16}}><Link href="/contact" className="btn btn-outline btn-sm">Contact the team →</Link></div>
+      </Panel>
     </div>
   </>;
 }

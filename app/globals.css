@@ -204,9 +204,6 @@ input:focus,textarea:focus,select:focus{border-color:var(--brand);box-shadow:0 0
 .notice strong{color:var(--brand-dark)}
 html[data-theme="dark"] .notice strong{color:var(--brand-2)}
 .notice-teal{border-left-color:var(--info);background:var(--info-soft)}
-.demo-banner{background:var(--sidebar);color:#DCE5F2;font-size:.78rem;text-align:center;padding:8px 16px;letter-spacing:.02em}
-.demo-banner strong{color:var(--brand-2)}
-.demo-banner a{color:var(--brand-2);text-decoration:underline}
 
 /* ---------- page hero ---------- */
 .page-hero{padding:clamp(48px,7vw,80px) 0 clamp(36px,5vw,54px);border-bottom:1px solid var(--line);background:
@@ -405,7 +402,7 @@ html[data-theme="dark"] .file-ico{color:var(--brand-2)}
 /* ---------- print (invoice) ---------- */
 @media print{
   body{background:#fff!important;color:#111!important}
-  .sidebar,.topbar,.demo-banner,.site-header,.site-footer,.app-head,.notice,.no-print,.pay-card,.role-switch{display:none!important}
+  .sidebar,.topbar,.site-header,.site-footer,.app-head,.notice,.no-print,.pay-card,.role-switch{display:none!important}
   .app{display:block!important} .app-content{padding:0!important;max-width:none!important}
   .invoice-shell{display:block!important}
   .invoice-paper{border:none!important;box-shadow:none!important;border-radius:0!important}

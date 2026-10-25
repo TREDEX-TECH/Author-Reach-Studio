@@ -1,30 +1,32 @@
-import Link from 'next/link';
-import { AppHead, KpiRow } from '@/components/module-view';
-import { Panel, Badge, EmptyState } from '@/components/ui';
-export default function WorkspaceReviews(){
-  const items = [
-    { t:'Finalise A+ module copy deck', p:'The Salt Road — launch', by:'Aisha Bello', v:'v3', date:'24 Oct 2026', tone:'warn' },
-    { t:'Homepage proof (desktop + mobile)', p:'Author platform refresh', by:'Tola Adebayo', v:'v2', date:'23 Oct 2026', tone:'danger' },
-  ];
+import { AppHead, KpiRow, SimpleTable } from '@/components/module-view';
+import { Panel, Badge } from '@/components/ui';
+import { getSnapshot } from '@/lib/data/live';
+export default async function WorkspaceReviews(){
+  const s = await getSnapshot();
+  const pending = s.deliverables.filter(d=>/review|pending/i.test(d.status));
+  const approved = s.deliverables.filter(d=>/approved|accepted/i.test(d.status));
+  const rows = pending.map(d=>[
+    <span><strong>{d.title}</strong><span className="sub">{d.version} · {d.date}</span></span>,
+    d.project, d.version, d.date, <Badge tone={d.tone}>{d.status}</Badge>,
+  ]);
   return <>
-    <AppHead title="Reviews" subtitle="Approve work or request changes. Every decision is recorded with its version."/>
-    <KpiRow items={[{label:'Awaiting my review',value:'2'},{label:'Approved this week',value:'4'},{label:'Changes requested',value:'1'},{label:'Avg. review time',value:'1.4 days'}]}/>
-    {items.map(i=>(
-      <Panel key={i.t} title={i.t} action={<Badge tone={i.tone}>In review</Badge>}>
-        <div className="spread" style={{marginBottom:16}}><div className="small faint">Project: {i.p} · Submitted by {i.by} · Version {i.v} · {i.date}</div></div>
-        <div className="grid grid-2">
-          <div><h4>Deliverable versions</h4>
-            {[['v1','18 Oct 2026','Superseded'],['v2','21 Oct 2026','Superseded'],['v3','24 Oct 2026','Current']].map(([v,d,s])=>(
-              <div className="file-row" key={v}><span className="file-ico">{v.toUpperCase()}</span><span style={{flex:1}}><strong style={{fontSize:'.85rem'}}>Version {v}</strong><span className="small faint" style={{display:'block'}}>{d} · {s}</span></span><Badge tone={s==='Current'?'info':'neutral'}>{s}</Badge></div>
-            ))}
-          </div>
-          <div><h4>Your decision</h4>
-            <label>Client-visible feedback</label><textarea placeholder="Feedback the client may see" style={{minHeight:80}}/>
-            <label style={{marginTop:12}}>Internal feedback (team only)</label><textarea placeholder="Internal notes — never shown to the client" style={{minHeight:70}}/>
-            <div className="row" style={{marginTop:14}}><Link href="/workspace/reviews" className="btn btn-primary btn-sm">Approve</Link><Link href="/workspace/reviews" className="btn btn-outline btn-sm">Request changes</Link></div>
-          </div>
-        </div>
+    <AppHead title="Reviews" subtitle="Approve work or request changes. Every decision is recorded against a specific version."/>
+    <KpiRow items={[
+      {label:'Awaiting review',value:String(pending.length)},
+      {label:'Approved deliverables',value:String(approved.length)},
+      {label:'Tasks requiring review',value:String(s.tasks.filter(t=>t.requiresReview).length)},
+      {label:'Visible deliverables',value:String(s.counts.deliverables)},
+    ]}/>
+    <Panel title="Deliverables awaiting review" flush><SimpleTable columns={['Deliverable','Project','Version','Submitted','Status']} rows={rows}
+      empty={{title:'Nothing waiting for review',body:'Deliverable versions that require approval appear here. Uploading a file never completes a task requiring review — an authorised reviewer records the decision separately.'}}/></Panel>
+    <div className="split">
+      <Panel title="Review rules">
+        <div className="metric-row"><span>Client-visible feedback</span><Badge tone="info">Shared</Badge></div>
+        <div className="metric-row"><span>Internal feedback</span><Badge tone="neutral">Staff only</Badge></div>
+        <div className="metric-row"><span>Version history</span><Badge tone="ok">Append-only</Badge></div>
+        <div className="metric-row"><span>Decision audit</span><Badge tone="ok">Recorded</Badge></div>
       </Panel>
-    ))}
+      <Panel title="Authorisation"><p className="small muted" style={{margin:0}}>Review actions are server-authorised and require a signed-in user with the right permission. This read-only view cannot approve work, because approval changes project state and must be auditable.</p></Panel>
+    </div>
   </>;
 }

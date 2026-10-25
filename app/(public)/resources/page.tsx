@@ -1,36 +1,29 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
-import { PageHero, Badge } from '@/components/ui';
-export const metadata: Metadata = { title:'Resources', description:'Practical guides for authors on metadata, discoverability, launch planning and book marketing.' };
+import Link from 'next/link';
+import { PageHero, EmptyState } from '@/components/ui';
+import { getSnapshot } from '@/lib/data/live';
+import { SITE } from '@/lib/config';
+export const metadata: Metadata = { title:'Resources', description:'Practical guidance for authors on discoverability, metadata, launches and reader engagement.' };
 
-const posts = [
-  { t:'Why your book categories matter more than your cover', c:'Discoverability', d:'8 min read', s:'Draft' },
-  { t:'A realistic six-week book launch timeline', c:'Launch planning', d:'11 min read', s:'Draft' },
-  { t:'What Amazon A+ Content can and cannot do', c:'Retail pages', d:'6 min read', s:'Draft' },
-  { t:'How to write an author bio readers actually finish', c:'Author brand', d:'5 min read', s:'Draft' },
-  { t:'Reading a campaign report without fooling yourself', c:'Measurement', d:'9 min read', s:'Draft' },
-  { t:'The difference between activity and results in book marketing', c:'Measurement', d:'7 min read', s:'Draft' },
-];
-
-export default function ResourcesPage() {
-  return (
-    <>
-      <PageHero eyebrow="Resources" title="Practical guidance for authors."
-        lead="Short, honest guides on discoverability, positioning, launch planning and how to read marketing reports. No growth hacks, no guaranteed outcomes." crumbs={[{label:'Resources'}]} />
-      <section className="section">
-        <div className="container">
-          <div className="notice notice-teal" style={{marginBottom:28}}><span><strong>Coming soon.</strong> These article topics are planned. Content must be written and reviewed before publication — we do not ship AI-generated filler under a brand that promises honesty.</span></div>
-          <div className="grid grid-3">
-            {posts.map(p => (
-              <article className="card card-hover" key={p.t}>
-                <div className="spread" style={{marginBottom:14}}><span className="small faint" style={{fontWeight:700,letterSpacing:'.08em'}}>{p.c.toUpperCase()}</span><Badge>{p.s}</Badge></div>
-                <h3 style={{fontSize:'1.08rem'}}>{p.t}</h3>
-                <p className="small faint" style={{margin:0}}>{p.d} · Planned</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-    </>
-  );
+export default async function ResourcesPage() {
+  const { notifications } = await getSnapshot();
+  const articles: { title:string; body:string }[] = [];
+  return <>
+    <PageHero eyebrow="Resources" title="Practical notes for authors."
+      lead="Clear, honest guidance on discoverability, metadata, launches and reader engagement — written from our own delivery experience, not generic marketing advice."
+      crumbs={[{label:'Resources'}]} />
+    <section className="section"><div className="container">
+      {articles.length ? (
+        <div className="grid grid-3">{articles.map(a=><div className="card" key={a.title}><h3>{a.title}</h3><p>{a.body}</p></div>)}</div>
+      ) : (
+        <EmptyState icon="✎" title="Articles are on the way"
+          body="We are writing our first guides. Until they are published, we will not fill this space with placeholder posts or recycled advice. If you have a specific question, ask us and we will answer it directly."
+          action={<Link href="/contact" className="btn btn-primary btn-sm">Ask a question →</Link>} />
+      )}
+      <div className="notice notice-teal" style={{marginTop:30}}>
+        <span><strong>No hype.</strong> We do not promise guaranteed sales, rankings or visibility. Anything we publish will distinguish completed work, campaign activity, observed results and outcomes controlled by external platforms. Questions: {SITE.email}.</span>
+      </div>
+      {notifications.length > 0 && <p className="small faint" style={{marginTop:16}}>{notifications.length} platform notices on file.</p>}
+    </div></section>
+  </>;
 }

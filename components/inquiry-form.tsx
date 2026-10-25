@@ -1,12 +1,15 @@
 'use client';
 import { useState } from 'react';
-import { services } from '@/lib/demo-data';
 
 type State = { status:'idle'|'sending'|'ok'|'error'; message?:string; reference?:string };
 
-export function InquiryForm({ variant = 'general' }: { variant?: 'general'|'service'|'consultation' }) {
+export function InquiryForm({ variant = 'general', services = [], defaultService = '' }: {
+  variant?: 'general'|'service'|'consultation';
+  services?: { slug:string; name:string }[];
+  defaultService?: string;
+}) {
   const [state, setState] = useState<State>({ status:'idle' });
-  const [service, setService] = useState('');
+  const [service, setService] = useState(defaultService);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,7 +31,7 @@ export function InquiryForm({ variant = 'general' }: { variant?: 'general'|'serv
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setState({ status:'ok', message: data.message ?? 'Thank you — we have your message.', reference: data.reference });
-        form.reset(); setService('');
+        form.reset(); setService(defaultService);
       } else {
         // Never claim a message was saved when it was not.
         setState({ status:'error', message: data.error ?? 'Something went wrong. Please try again.' });

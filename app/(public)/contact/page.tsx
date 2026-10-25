@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import { PageHero } from '@/components/ui';
+import { getCatalogue } from '@/lib/data/catalogue';
 import { InquiryForm } from '@/components/inquiry-form';
-import { BRAND } from '@/lib/demo-data';
+import { SITE } from '@/lib/config';
 export const metadata: Metadata = { title:'Contact', description:'Contact Author Reach Studio to discuss your book and request a consultation.' };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const { services } = await getCatalogue();
   return (
     <>
       <PageHero eyebrow="Contact" title="Let’s talk about your book."
@@ -21,13 +23,13 @@ export default function ContactPage() {
             </ul>
             <div className="card" style={{marginTop:28}}>
               <h3 style={{fontSize:'1.05rem'}}>Direct contact</h3>
-              <p className="small" style={{marginBottom:6}}><strong>Email:</strong> {BRAND.email}</p>
-              <p className="small" style={{marginBottom:6}}><strong>Phone / WhatsApp:</strong> {BRAND.phone}</p>
-              <p className="small" style={{marginBottom:0}}><strong>Office:</strong> {BRAND.address}</p>
+              <p className="small" style={{marginBottom:6}}><strong>Email:</strong> {SITE.email}</p>
+              <p className="small" style={{marginBottom:6}}><strong>Phone / WhatsApp:</strong> {SITE.phone || 'By arrangement'}</p>
+              <p className="small" style={{marginBottom:0}}><strong>Office:</strong> {SITE.address || 'Contact us for details'}</p>
             </div>
             <div className="notice" style={{marginTop:20}}><strong>Payment safety.</strong>&nbsp; We will never ask you to pay from a link in a chat message. Invoices are only paid from inside your client portal, and a browser “success” screen is never treated as proof of payment.</div>
           </div>
-          <InquiryForm variant="consultation" />
+          <InquiryForm variant="consultation" services={services.map(s=>({slug:s.slug,name:s.name}))} />
         </div>
       </section>
     </>

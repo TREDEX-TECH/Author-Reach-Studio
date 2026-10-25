@@ -4,27 +4,39 @@ import { ArsLogo, TredexLogo } from '@/components/brand';
 import { Badge } from '@/components/ui';
 import { ProceedToPayment } from '@/components/proceed-to-payment';
 import { PrintButton } from '@/components/print-button';
-import { invoices, money, BRAND } from '@/lib/demo-data';
+import { getInvoice, getSnapshot } from '@/lib/data/live';
+import { SITE } from '@/lib/config';
+import { money, titleCase } from '@/lib/format';
 
-const LINE_ITEM_TEMPLATE = [
-  { name:'Strategy, research & planning', share:0.45 },
-  { name:'Creative production & implementation', share:0.35 },
-  { name:'Reporting, handover & support', share:0.20 },
-];
-function lineItemsFor(total: number) {
-  const rows = LINE_ITEM_TEMPLATE.map(i => ({ name:i.name, qty:1, unit:Math.round(total*i.share) }));
-  rows[rows.length-1].unit = total - rows.slice(0,-1).reduce((s,r)=>s+r.unit,0);
-  return rows;
-}
+type EntitySnapshot = Record<string, unknown>;
+const text = (v: unknown) => typeof v === 'string' && v.trim() ? v.trim() : '';
 
 export default async function InvoiceDetail({ params }: { params: Promise<{id:string}> }) {
   const { id } = await params;
-  const inv = invoices.find(i => i.id === id);
+  const inv = await getInvoice(id);
   if (!inv) notFound();
-  const paid = inv.status === 'Paid' || inv.status === 'Refunded';
-  const balance = paid ? 0 : inv.amount;
-  const LINE_ITEMS = lineItemsFor(inv.amount);
-  const subtotal = LINE_ITEMS.reduce((s,i)=>s+i.qty*i.unit,0);
+  const s = await getSnapshot();
+
+  const entity: EntitySnapshot = inv.legalEntity && typeof inv.legalEntity === 'object'
+    ? inv.legalEntity as EntitySnapshot : {};
+  const fromName = text(entity.legal_name) || text(entity.name) || SITE.name;
+  const registration = text(entity.registration_number) || text(entity.registration_no);
+  const fromAddress = text(entity.address) || SITE.address;
+  const fromEmail = text(entity.email) || SITE.email;
+
+  const items = inv.items.length ? inv.items : [{
+    description: inv.description || 'Services as agreed in the accepted proposal',
+    quantity: 1, unit: inv.subtotal || inv.amount, total: inv.subtotal || inv.amount,
+  }];
+  const subtotal = items.reduce((sum, i) => sum + i.total, 0);
+  const tax = inv.tax;
+  const paid = Math.min(inv.paid, inv.amount);
+  const balance = Math.max(0, inv.amount - paid);
+  const settled = balance <= 0 && /paid|refund/i.test(inv.status);
+  const canPay = !!process.env.PAYSTACK_SECRET_KEY
+    && balance > 0
+    && !/draft|cancel|refund/i.test(inv.status);
+  const attempts = s.payments.filter(p => p.invoiceId === inv.id);
 
   return (
     <>
@@ -47,7 +59,8 @@ export default async function InvoiceDetail({ params }: { params: Promise<{id:st
             <div>
               <ArsLogo height={64} />
               <p className="small" style={{margin:'12px 0 0',color:'var(--muted)',maxWidth:'34ch'}}>
-                Author marketing, discoverability &amp; growth.<br/>{BRAND.email} · {BRAND.address}
+                Book marketing, discoverability and author-brand support.<br/>
+                {fromEmail}{fromAddress ? ` · ${fromAddress}` : ''}
               </p>
             </div>
             <div className="inv-title">
@@ -60,21 +73,22 @@ export default async function InvoiceDetail({ params }: { params: Promise<{id:st
           <section className="inv-meta">
             <div><div className="lbl">Issue date</div><strong>{inv.date}</strong></div>
             <div><div className="lbl">Due date</div><strong>{inv.due}</strong></div>
-            <div><div className="lbl">Currency</div><strong>USD ($)</strong></div>
+            <div><div className="lbl">Currency</div><strong>{inv.currency.trim()} ({inv.currency.trim() === 'USD' ? '$' : inv.currency.trim()})</strong></div>
             <div><div className="lbl">Payment terms</div><strong>14 days</strong></div>
             <div><div className="lbl">Invoice reference</div><strong>{inv.number}</strong></div>
-            <div><div className="lbl">Payment method</div><strong>Paystack · verified</strong></div>
+            <div><div className="lbl">Payment method</div><strong>Paystack · server-verified</strong></div>
           </section>
 
           <section className="inv-parties">
             <div>
               <h4>From</h4>
-              <p><strong>Author Reach Studio</strong><br/>A specialist brand of Tredex<br/>
-              Registered service provider: <em>to be confirmed</em><br/>{BRAND.email}</p>
+              <p><strong>{fromName}</strong><br/>{SITE.relationship}
+                {registration ? <><br/>Registration: {registration}</> : null}
+                <br/>{fromEmail}{fromAddress ? <><br/>{fromAddress}</> : null}</p>
             </div>
             <div>
               <h4>Bill to</h4>
-              <p><strong>Amara Nwosu</strong><br/>Author / client account<br/>amara@example.com<br/>Ibadan, Nigeria</p>
+              <p><strong>{inv.billTo}</strong><br/>Client account on file<br/>{inv.billToEmail}</p>
             </div>
           </section>
 
@@ -82,11 +96,11 @@ export default async function InvoiceDetail({ params }: { params: Promise<{id:st
             <div className="table-wrap"><table>
               <thead><tr><th style={{width:'52%'}}>Description</th><th>Qty</th><th>Unit price</th><th style={{textAlign:'right'}}>Line total</th></tr></thead>
               <tbody>
-                {LINE_ITEMS.map(i => (
-                  <tr key={i.name}>
-                    <td><strong>{i.name}</strong><span className="sub">{inv.description}</span></td>
-                    <td>{i.qty}</td><td>{money(i.unit)}</td>
-                    <td style={{textAlign:'right'}} className="money">{money(i.qty*i.unit)}</td>
+                {items.map((i, n) => (
+                  <tr key={`${i.description}-${n}`}>
+                    <td><strong>{i.description}</strong></td>
+                    <td>{i.quantity}</td><td>{money(i.unit, inv.currency)}</td>
+                    <td style={{textAlign:'right'}} className="money">{money(i.total, inv.currency)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -94,17 +108,17 @@ export default async function InvoiceDetail({ params }: { params: Promise<{id:st
           </section>
 
           <div className="inv-totals"><div className="inv-totals-box">
-            <div className="metric-row"><span>Subtotal</span><strong>{money(subtotal)}</strong></div>
-            <div className="metric-row"><span>Tax / VAT</span><strong>{money(0)}</strong></div>
-            <div className="metric-row"><span>Amount paid</span><strong>{money(paid ? inv.amount : 0)}</strong></div>
-            <div className="metric-row grand"><span><strong>Balance due</strong></span><strong className="money">{money(balance)}</strong></div>
+            <div className="metric-row"><span>Subtotal</span><strong>{money(subtotal, inv.currency)}</strong></div>
+            <div className="metric-row"><span>Tax / VAT</span><strong>{money(tax, inv.currency)}</strong></div>
+            <div className="metric-row"><span>Amount paid</span><strong>{money(paid, inv.currency)}</strong></div>
+            <div className="metric-row grand"><span><strong>Balance due</strong></span><strong className="money">{money(balance, inv.currency)}</strong></div>
           </div></div>
 
           <footer className="inv-foot">
             <div className="row" style={{gap:12,flexWrap:'nowrap'}}>
               <TredexLogo size={38} />
-              <p><strong style={{color:'var(--ink-2)'}}>{BRAND.relationship}</strong><br/>
-              Payment is only confirmed after server-side verification with Paystack. A browser success page is never proof of payment. Invoices and verified payment records are retained for accounting purposes.</p>
+              <p><strong style={{color:'var(--ink-2)'}}>{SITE.relationship}</strong><br/>
+              Payment is confirmed only after server-side verification with Paystack. A browser success page is never proof of payment. Invoices and verified payment records are retained for accounting purposes.</p>
             </div>
             <span className="small faint">Thank you for working with us.</span>
           </footer>
@@ -112,26 +126,18 @@ export default async function InvoiceDetail({ params }: { params: Promise<{id:st
 
         <aside className="pay-card no-print">
           <div className="pay-card-top">
-            <div className="lbl">{paid ? 'Settled' : 'Amount due'}</div>
-            <div className="amt">{money(balance)}</div>
-            <div className="small" style={{opacity:.9,marginTop:4}}>{inv.status === 'Outstanding' ? `Due ${inv.due}` : 'No payment required'}</div>
+            <div className="lbl">{settled ? 'Settled' : 'Balance due'}</div>
+            <div className="amt">{money(balance, inv.currency)}</div>
+            <div className="small" style={{opacity:.9,marginTop:4}}>{settled ? 'No payment required' : `Due ${inv.due}`}</div>
           </div>
           <div className="pay-card-body">
-            {inv.status === 'Outstanding' ? (
-              <>
-                <ProceedToPayment invoiceId={inv.id} invoiceNumber={inv.number}/>
-                <div className="divider" style={{margin:'18px 0'}}/>
-                <div className="metric-row"><span>Invoice</span><strong>{inv.number}</strong></div>
-                <div className="metric-row"><span>Issued</span><strong>{inv.date}</strong></div>
-                <div className="metric-row"><span>Due</span><strong>{inv.due}</strong></div>
-                <div className="metric-row"><span>Currency</span><strong>USD ($)</strong></div>
-                <div className="metric-row"><span>Partial payments</span><strong>Disabled</strong></div>
-              </>
-            ) : (
-              <div className="notice notice-teal" style={{fontSize:'.83rem'}}>
-                <span>This invoice is <strong>{inv.status.toLowerCase()}</strong>. Its state was derived from a verified payment record — not from a browser redirect. No further payment is required.</span>
-              </div>
-            )}
+            <ProceedToPayment invoiceId={inv.id} invoiceNumber={inv.number} enabled={canPay}/>
+            <div className="divider" style={{margin:'18px 0'}}/>
+            <div className="metric-row"><span>Invoice</span><strong>{inv.number}</strong></div>
+            <div className="metric-row"><span>Issued</span><strong>{inv.date}</strong></div>
+            <div className="metric-row"><span>Due</span><strong>{inv.due}</strong></div>
+            <div className="metric-row"><span>Currency</span><strong>{inv.currency.trim()}</strong></div>
+            <div className="metric-row"><span>Partial payments</span><strong>By arrangement</strong></div>
             <div className="divider" style={{margin:'18px 0'}}/>
             <h4 style={{fontFamily:'var(--sans)',fontSize:'.82rem',marginBottom:10}}>Security checks</h4>
             {[
@@ -157,10 +163,12 @@ export default async function InvoiceDetail({ params }: { params: Promise<{id:st
           <div className="panel-body flush"><div className="table-wrap" style={{border:'none'}}><table>
             <thead><tr><th>Reference</th><th>Date</th><th>Amount</th><th>Result</th></tr></thead>
             <tbody>
-              {paid ? (
-                <tr><td><span className="small">{`ARS-${inv.number}-8f3a21c4`}</span></td><td>{inv.date}</td><td className="money">{money(inv.amount)}</td><td><Badge tone="ok">Verified · Paystack</Badge></td></tr>
-              ) : (
-                <tr><td colSpan={4}><span className="small faint">No payment attempts recorded yet for this invoice. Failed and abandoned attempts will appear here without changing your balance.</span></td></tr>
+              {attempts.length ? attempts.map(p => (
+                <tr key={p.id}><td><span className="small">{p.reference}</span></td><td>{p.date}</td>
+                  <td className="money">{money(p.amount, p.currency)}</td>
+                  <td><Badge tone={p.verified ? 'ok' : 'warn'}>{p.verified ? 'Verified · Paystack' : titleCase(p.status)}</Badge></td></tr>
+              )) : (
+                <tr><td colSpan={4}><span className="small faint">No payment attempts recorded for this invoice. Failed and abandoned attempts will appear here without changing your balance.</span></td></tr>
               )}
             </tbody>
           </table></div></div>

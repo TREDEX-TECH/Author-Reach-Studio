@@ -1,9 +1,11 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ArsLogo } from './brand';
 import { ThemeToggle } from './theme-toggle';
+import { SignOutButton } from './sign-out-button';
+import { getViewer, GUEST, type Viewer } from '@/lib/auth';
 import type { NavGroup } from '@/lib/navigation';
 
 const ROLES = [
@@ -13,10 +15,14 @@ const ROLES = [
 ];
 
 export function AppShell({ nav, title, crumb, person, roleArea, children }: {
-  nav: NavGroup[]; title: string; crumb: string; person: { name: string; initials: string; role: string };
-  roleArea: 'portal' | 'workspace' | 'admin'; children: ReactNode;
+  nav: NavGroup[]; title: string; crumb: string; person: { name:string; initials:string; role:string };
+  roleArea: 'portal'|'workspace'|'admin'; children: ReactNode;
 }) {
   const pathname = usePathname();
+  const [viewer, setViewer] = useState<Viewer | null>(null);
+  useEffect(() => { getViewer().then(setViewer).catch(() => setViewer(GUEST)); }, []);
+  const shown = viewer?.signedIn ? viewer : person;
+
   return (
     <div className="app">
       <aside className="sidebar">
@@ -26,11 +32,8 @@ export function AppShell({ nav, title, crumb, person, roleArea, children }: {
             <div className="side-group">{group.group}</div>
             {group.items.map(item => {
               const active = item.href === pathname || (item.href !== '/' && pathname.startsWith(item.href + '/'));
-              return (
-                <Link key={item.href} href={item.href} className={`side-link${active ? ' active' : ''}`}>
-                  <span className="ico" aria-hidden="true">{item.icon}</span>{item.label}
-                </Link>
-              );
+              return <Link key={item.href} href={item.href} className={`side-link${active ? ' active' : ''}`}>
+                <span className="ico" aria-hidden="true">{item.icon}</span>{item.label}</Link>;
             })}
           </div>
         ))}
@@ -41,8 +44,8 @@ export function AppShell({ nav, title, crumb, person, roleArea, children }: {
         </div>
         <div className="side-foot">
           <div className="side-user">
-            <span className="avatar">{person.initials}</span>
-            <span><strong style={{color:'#fff',display:'block',fontSize:'.8rem'}}>{person.name}</strong>{person.role}</span>
+            <span className="avatar">{shown.initials}</span>
+            <span><strong style={{color:'#fff',display:'block',fontSize:'.8rem'}}>{shown.name}</strong>{shown.role}</span>
           </div>
           <div style={{padding:'10px 10px 0'}}><Link href="/" style={{color:'var(--sidebar-muted)'}}>← Back to website</Link></div>
         </div>
@@ -55,19 +58,17 @@ export function AppShell({ nav, title, crumb, person, roleArea, children }: {
               <span aria-hidden="true">⌕</span>
               <input placeholder="Search projects, invoices, files…" aria-label="Search" />
             </label>
-            <div className="role-switch" aria-label="Switch demo interface">
+            <div className="role-switch" aria-label="Switch workspace">
               {ROLES.map(r => <Link key={r.key} href={r.href} className={roleArea === r.key ? 'active' : ''}>{r.label}</Link>)}
             </div>
             <ThemeToggle />
-            <span className="avatar" style={{width:32,height:32,fontSize:'.72rem'}}>{person.initials}</span>
+            {viewer?.signedIn
+              ? <SignOutButton />
+              : <Link href="/sign-in" className="btn btn-outline btn-sm">Sign in</Link>}
+            <span className="avatar" style={{width:32,height:32,fontSize:'.72rem'}}>{shown.initials}</span>
           </div>
         </div>
-        <div className="app-content">
-          <div className="notice no-print" style={{marginBottom:20,fontSize:'.8rem'}}>
-            <strong>Demo workspace.</strong> All records below are fictional sample data. In the live platform these screens are powered by Supabase with row-level security, and every action is authorised on the server.
-          </div>
-          {children}
-        </div>
+        <div className="app-content">{children}</div>
       </div>
     </div>
   );

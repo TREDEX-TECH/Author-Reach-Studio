@@ -44,13 +44,13 @@ for i,(rel,size,lines) in enumerate(files,1):
     out.append(f'| {i} | `{rel}` | {size:,} B | {lines} |')
 out += ['','## Areas','',
  '- **`START-HERE.md`, `README.md`, `DRIVE-CONTENTS.md`, `FILE-MANIFEST.md`** — entry points and inventories.',
- '- **`app/`** — 45 routes: public site, client portal, team workspace, admin, sign-in, design system, global CSS, favicon.',
+ '- **`app/`** — App Router routes: public site, client portal, team workspace, admin, sign-in, design system, global CSS, favicon.',
  '- **`components/`** — brand logos, header/footer, dashboard shell, theme toggle, print button, forms, UI primitives.',
- '- **`lib/`** — types, demo data, navigation, Supabase clients.','- **`netlify/functions/`** — inquiry, Paystack init/webhook/callback, shared server helpers.',
- '- **`supabase/`** — 2 migrations (source of truth), seed, config, auth email templates.',
+ '- **`lib/`** — types, environment config, live RLS-aware data layer, formatting, navigation, Supabase clients.','- **`netlify/functions/`** — inquiry, Paystack init/webhook/callback, shared server helpers.',
+ '- **`supabase/`** — 5 migrations (source of truth), seed, config, deployed inquiry Edge Function.',
  '- **`public/`, `brand-assets/`** — real logos from Google Drive, favicon, design-board references, contact sheet.',
- '- **`docs/`** — charter, decisions, intake checklist, Supabase setup, security, roadmap, content inventory, build report, visual redesign.',
- '- **`tests/`, `scripts/`** — 14 architecture/security tests, verify script, manifest generator.','',
+ '- **`docs/`** — charter, decisions, intake checklist, Supabase setup, security, roadmap, content inventory, build report, visual redesign, operational readiness, vertical-slice plan, live state.',
+ '- **`tests/`, `scripts/`** — architecture/security regression tests, RLS persona harness, verify script, manifest generator.','',
  '## Not persisted in the workspace snapshot','',
  '- `node_modules/` (run `npm install`), `.next/` (run `npm run build`), `.env.local` (your secrets).']
 Path('FILE-MANIFEST.md').write_text('\n'.join(out)+'\n')

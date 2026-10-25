@@ -3,7 +3,9 @@ import type { Metadata } from 'next';
 import { ArsLogo, TredexLogo } from '@/components/brand';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { PageHero, Badge, EmptyState, Progress, Ring } from '@/components/ui';
-export const metadata: Metadata = { title:'Design system', description:'Author Reach Studio visual language — orange/white brand, light & dark themes, real logos and UI components.' };
+import { getSnapshot } from '@/lib/data/live';
+import { money } from '@/lib/format';
+export const metadata: Metadata = { title:'Design system', description:'Author Reach Studio visual language — orange/white brand, light & dark themes, real logos and UI components.', robots:{index:false,follow:false} };
 
 const swatches = [
   ['#F4761F','Brand orange','Primary actions, active nav, highlights','--brand'],
@@ -24,7 +26,9 @@ const swatches = [
   ['#3568E8','Info','In progress, external data','--info'],
 ];
 
-export default function DesignSystemPage() {
+export default async function DesignSystemPage() {
+  const s = await getSnapshot();
+  const progress = s.projects.length ? Math.round(s.projects.reduce((a,p)=>a+p.progress,0)/s.projects.length) : 0;
   return (
     <>
       <PageHero eyebrow="Design review · v2" title="One brand. Two themes. Every screen."
@@ -34,7 +38,7 @@ export default function DesignSystemPage() {
         <div className="container">
           <div className="callout" style={{marginBottom:36}}>
             <span className="co-ico">◐</span>
-            <div><h4>Try the theme switcher</h4><p>This whole site — public pages, all three dashboards and the invoice — supports light and dark. Use the toggle in the header (or here) and your choice is remembered in this browser.</p>
+            <div><h4>Try the theme switcher</h4><p>Every page — public site, all three workspaces and the invoice — supports light and dark. Use the toggle in the header and your choice is remembered in this browser.</p>
             <div className="row" style={{marginTop:12}}><ThemeToggle /><span className="small faint">Toggle light / dark</span></div></div>
           </div>
 
@@ -81,42 +85,51 @@ export default function DesignSystemPage() {
           </div>
 
           <h2 style={{marginTop:56}}>5. Dashboard structure</h2>
-          <p className="lead">Borrowed from your three reference boards: a coloured hero banner, KPI tiles with icon chips, quick-action cards, panels and dense-but-readable tables.</p>
+          <p className="lead">Borrowed from your three reference boards: a coloured hero banner, KPI tiles with icon chips, quick-action cards, panels and dense-but-readable tables. The preview below reads the same live records as the dashboards.</p>
           <div className="specimen">
-            <div className="hero-banner" style={{marginBottom:18}}><div className="spread"><div><h2>Good morning, Amara 👋</h2><p>2 active projects · 1 deliverable waiting for your review.</p></div><Ring value={68}/></div></div>
+            <div className="hero-banner" style={{marginBottom:18}}><div className="spread"><div><h2>Your author workspace</h2><p>{s.counts.activeProjects} active projects · {s.deliverables.filter(d=>/review|pending/i.test(d.status)).length} deliverables in review.</p></div><Ring value={progress}/></div></div>
             <div className="kpis" style={{marginBottom:18}}>
-              {[['Active projects','2','◧'],['Pending approvals','1','✓'],['Balance due','$1,450','◈'],['Files available','18','▧']].map(([l,v,i])=>(
+              {[
+                ['Active projects',String(s.counts.activeProjects),'◧'],
+                ['Pending approvals',String(s.deliverables.filter(d=>/review|pending/i.test(d.status)).length),'✓'],
+                ['Outstanding balance',money(s.counts.outstanding),'◈'],
+                ['Files visible',String(s.counts.files),'▧'],
+              ].map(([l,v,i])=>(
                 <div className="kpi" key={l}><span className="kpi-icon">{i}</span><div className="label">{l}</div><div className="value">{v}</div></div>
               ))}
             </div>
             <div className="quick-grid" style={{marginBottom:0}}>
-              {[['▣','My projects','2 active'],['▦','Proposals','1 awaiting'],['◈','Pay invoice','1 due'],['▧','Files','1 to review']].map(([i,l,s])=>(
-                <div className="quick-card" key={l}><span className="qi">{i}</span><span><b>{l}</b><span>{s}</span></span></div>
+              {[
+                ['▣','My projects',`${s.counts.projects} on file`],
+                ['▦','Proposals',`${s.counts.proposals} on file`],
+                ['◈','Invoices',`${s.counts.invoices} issued`],
+                ['▧','Files',`${s.counts.files} visible`],
+              ].map(([i,l,sub])=>(
+                <div className="quick-card" key={l}><span className="qi">{i}</span><span><b>{l}</b><span>{sub}</span></span></div>
               ))}
             </div>
           </div>
           <div className="split">
             <div className="specimen"><div className="specimen-label">Progress</div>
-              {[['On track',68,''],['Needs attention',91,'warn'],['At risk',32,'danger']].map(([l,v,t])=>(
-                <div key={l} style={{marginBottom:18}}><div className="spread" style={{marginBottom:8}}><span className="small">{l}</span><span className="small faint">{v}%</span></div><Progress value={Number(v)} tone={String(t)}/></div>
-              ))}
-              <p className="small faint" style={{margin:0}}>Progress is derived from milestones and approved tasks in the live system.</p>
+              {s.projects.length ? s.projects.slice(0,3).map(p=>(
+                <div key={p.id} style={{marginBottom:18}}><div className="spread" style={{marginBottom:8}}><span className="small">{p.name}</span><span className="small faint">{p.progress}%</span></div><Progress value={p.progress} tone={p.tone==='warn'?'warn':''}/></div>
+              )) : <p className="small faint">No projects yet, so there are no progress values to draw.</p>}
+              <p className="small faint" style={{margin:0}}>Progress is derived from milestones in live records.</p>
             </div>
             <div className="specimen"><div className="specimen-label">Empty state</div>
-              <EmptyState title="No case studies published yet" body="We only show genuine projects with written client permission. Placeholder logos and invented results are not used." action={<Link href="/contact" className="btn btn-outline btn-sm">Ask about our experience →</Link>}/>
+              <EmptyState title={s.counts.reports ? 'Reports are available' : 'No reports published yet'} body={s.counts.reports ? `${s.counts.reports} client-visible report${s.counts.reports===1?'':'s'} on file.` : 'We only show genuine projects with written client permission. Invented results are not used.'} action={<Link href="/portal/reports" className="btn btn-outline btn-sm">Open reports →</Link>}/>
             </div>
           </div>
           <div className="specimen"><div className="specimen-label">Table</div>
             <div className="table-wrap"><table><thead><tr><th>Invoice</th><th>Client</th><th>Amount</th><th>Status</th></tr></thead>
-              <tbody><tr><td><strong>ARS-2026-0041</strong><span className="sub">Launch programme — phase 1</span></td><td>Amara Nwosu</td><td className="money">$1,450</td><td><Badge tone="warn">Outstanding</Badge></td></tr>
-              <tr><td><strong>ARS-2026-0038</strong><span className="sub">Discoverability</span></td><td>Amara Nwosu</td><td className="money">$850</td><td><Badge tone="ok">Paid</Badge></td></tr></tbody></table></div>
+              <tbody>{s.invoices.length ? s.invoices.slice(0,3).map(i=><tr key={i.id}><td><strong>{i.number}</strong><span className="sub">{i.description}</span></td><td>{i.billTo}</td><td className="money">{money(i.amount,i.currency)}</td><td><Badge tone={i.tone}>{i.status}</Badge></td></tr>) : <tr><td colSpan={4}><span className="small faint">No invoices on file yet. This table is empty because there is no financial data to show.</span></td></tr>}</tbody></table></div>
           </div>
 
           <h2 style={{marginTop:56}}>6. The invoice</h2>
           <p className="lead">The invoice is a real document, not a dashboard widget: branded header, bill-from / bill-to, line items, totals, a payment card and print styles that hide the app chrome.</p>
           <div className="specimen"><div className="row" style={{justifyContent:'space-between'}}>
-            <div><strong className="small">/portal/invoices/inv-1</strong><p className="small faint" style={{margin:'4px 0 0'}}>Use “Print / Save PDF” to export a clean A4 invoice.</p></div>
-            <Link href="/portal/invoices/inv-1" className="btn btn-primary btn-sm">Open invoice →</Link>
+            <div><strong className="small">/portal/invoices</strong><p className="small faint" style={{margin:'4px 0 0'}}>Open any issued invoice and use “Print / Save PDF” to export a clean A4 document.</p></div>
+            <Link href="/portal/invoices" className="btn btn-primary btn-sm">Open invoices →</Link>
           </div></div>
 
           <h2 style={{marginTop:56}}>7. Responsive &amp; accessibility</h2>
@@ -129,7 +142,7 @@ export default function DesignSystemPage() {
             ].map(([t,b])=><div className="card" key={t}><h3 style={{fontSize:'1.05rem'}}>{t}</h3><p>{b}</p></div>)}
           </div>
 
-          <div className="callout" style={{marginTop:40}}><span className="co-ico">✳</span><div><h4>Still useful to have</h4><p>A vector (SVG/AI/EPS) version of the ARS logo for crisp retina rendering, the exact hex values if they differ from the sampled #F4761F, and any font files you want used. Everything else is already wired in and adjustable from one CSS file.</p><Link href="/contact" className="btn btn-primary btn-sm" style={{marginTop:12}}>Send brand pack →</Link></div></div>
+          <div className="callout" style={{marginTop:40}}><span className="co-ico">✳</span><div><h4>One brand, consistently applied</h4><p>These tokens are the single source of truth for the interface. Every screen uses them, so a colour or type change is made once and reflected everywhere.</p></div></div>
         </div>
       </section>
     </>

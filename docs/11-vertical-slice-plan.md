@@ -36,7 +36,7 @@ That is enough to prove **every trust boundary in the blueprint**.
 | 5 | Supabase Auth: invite-only signup, email verification, password reset, MFA for staff, explicit redirect allowlist, custom templates | No self-registration; redirects only to your real domains |
 | 6 | `middleware.ts`: session refresh + route protection for `/portal`, `/workspace`, `/admin` | An unauthenticated request to `/admin` redirects to `/sign-in` |
 | 7 | CI (GitHub Actions) running `npm test`, `npm run typecheck`, `npm run build`; Netlify deploy from `main`, staging from `staging` | PRs cannot merge on red; preview deploys work |
-| 8 | All env vars set in Netlify (dev/staging/prod scopes); `NEXT_PUBLIC_DEMO_MODE=false` in staging | App boots against real Supabase |
+| 8 | All env vars set in Netlify (dev/staging/prod scopes); `REQUIRE_AUTH=true` in staging | App boots against real Supabase |
 
 **Deliverable:** the current 45 screens still render, but now on top of a real, protected backend.
 
@@ -106,7 +106,7 @@ Send these as **dashboard values or env vars**, never as real secrets in chat.
 - Reply-to / support address
 
 ### 5. Domain
-- The real domain (currently `authorreachstudio.com` is a placeholder in `app/layout.tsx`)
+- The real domain (set `NEXT_PUBLIC_SITE_URL`; `app/layout.tsx` reads it instead of a hardcoded domain)
 - DNS access for the email domain + Auth redirect allowlist entries
 
 ### 6. Content (even a minimal version unblocks the whole slice)

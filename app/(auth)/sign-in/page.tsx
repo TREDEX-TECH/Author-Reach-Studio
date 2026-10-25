@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { ArsLogo, TredexLogo } from '@/components/brand';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { AuthForm } from '@/components/auth-form';
+import { SITE } from '@/lib/config';
 export const metadata: Metadata = { title:'Sign in', description:'Sign in to the Author Reach Studio client portal or team workspace.' };
 
 export default function SignInPage() {
@@ -20,27 +23,21 @@ export default function SignInPage() {
           </div>
         </div>
         <div className="row" style={{gap:12,color:'var(--sidebar-muted)',fontSize:'.8rem'}}>
-          <TredexLogo size={34}/><span>Author Reach Studio is a specialist brand of Tredex.</span>
+          <TredexLogo size={34}/><span>{SITE.relationship}</span>
         </div>
       </div>
       <div style={{display:'grid',placeItems:'center',padding:32,background:'var(--bg)',position:'relative'}}>
         <div style={{position:'absolute',top:24,right:24}}><ThemeToggle/></div>
         <div style={{width:'min(420px,100%)'}}>
-          <div className="demo-banner" style={{borderRadius:10,marginBottom:22}}>Demo mode — authentication is not connected yet.</div>
           <h2 style={{fontSize:'1.8rem'}}>Sign in</h2>
           <p className="muted" style={{fontSize:'.9rem'}}>Use the email address your invitation was sent to.</p>
-          <form className="stack" style={{marginTop:22}}>
-            <div><label htmlFor="email">Work email</label><input id="email" type="email" placeholder="you@example.com" /></div>
-            <div><label htmlFor="password">Password</label><input id="password" type="password" placeholder="••••••••" /></div>
-            <div className="spread"><label className="checkbox"><input type="checkbox"/> Remember me</label><a href="#" className="small" style={{color:'var(--brand-dark)',fontWeight:700}}>Forgot password?</a></div>
-            <Link href="/portal" className="btn btn-primary" style={{width:'100%'}}>Sign in →</Link>
-          </form>
+          <Suspense fallback={<div className="small faint">Loading sign-in…</div>}><AuthForm /></Suspense>
           <div className="notice notice-teal" style={{marginTop:22,fontSize:'.82rem'}}>
-            <span><strong>Phase 2 wiring:</strong> Supabase Auth with email verification, password reset, an explicit redirect allowlist and invitation-only onboarding for both clients and staff.</span>
+            <span><strong>Invitation only.</strong> Accounts are created by an administrator. If you need access, contact {SITE.email}. Never share your password — we will never ask for it.</span>
           </div>
           <div className="row" style={{marginTop:24,justifyContent:'space-between'}}>
             <Link href="/" className="small muted">← Back to website</Link>
-            <div className="row" style={{gap:10}}><Link href="/workspace" className="small muted">Team</Link><Link href="/admin" className="small muted">Admin</Link></div>
+            <Link href="/contact" className="small muted">Request access</Link>
           </div>
         </div>
       </div>

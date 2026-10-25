@@ -8,6 +8,8 @@ const checks = [
   ['netlify.toml', existsSync(join(root,'netlify.toml'))],
   ['migrations present', readdirSync(join(root,'supabase/migrations')).some(f=>f.endsWith('.sql'))],
   ['docs present', readdirSync(join(root,'docs')).length >= 7],
+  ['demo data removed', !existsSync(join(root,'lib/demo-data.ts'))],
+  ['auth gate documented', readFileSync(join(root,'.env.example'),'utf8').includes('REQUIRE_AUTH')],
   ['no real keys in repo', !readFileSync(join(root,'.env.example'),'utf8').includes('sk_live_')],
 ];
 for (const [name, ok] of checks) console.log(`${ok ? '✓' : '✗'} ${name}`);

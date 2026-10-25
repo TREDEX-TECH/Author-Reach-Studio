@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { BRAND } from '@/lib/demo-data';
+import { SITE } from '@/lib/config';
 import { getCatalogue } from '@/lib/data/catalogue';
-import { Badge } from '@/components/ui';
+import { getSnapshot } from '@/lib/data/live';
 
 const problems = [
   { n:'01', t:'Your book is invisible to the right readers', b:'Strong writing is not enough if metadata, categories and product pages push you towards the wrong audience — or no audience at all.' },
@@ -10,7 +10,7 @@ const problems = [
 ];
 
 export default async function Home() {
-  const { services } = await getCatalogue();
+  const [{ services }, snapshot] = await Promise.all([getCatalogue(), getSnapshot()]);
   return (
     <>
       <section className="hero">
@@ -32,18 +32,15 @@ export default async function Home() {
           <div className="platform-preview" aria-label="Platform preview">
             <div className="pp-top"><i/><i/><i/><span>Author Reach Studio · Platform</span></div>
             <div className="pp-body">
-              <div className="pp-banner"><b>Good morning, Amara 👋</b><span>2 active projects · 1 deliverable waiting for your review</span></div>
+              <div className="pp-banner"><b>Your author workspace</b><span>One connected record from enquiry to invoice.</span></div>
               <div className="pp-kpis">
-                <div className="pp-kpi"><b>68%</b><span>Launch progress</span></div>
-                <div className="pp-kpi"><b>$1,450</b><span>Balance due</span></div>
-                <div className="pp-kpi"><b>18</b><span>Files ready</span></div>
+                <div className="pp-kpi"><b>{String(snapshot.counts.projects).padStart(2,'0')}</b><span>Projects on file</span></div>
+                <div className="pp-kpi"><b>{String(snapshot.services.length).padStart(2,'0')}</b><span>Published services</span></div>
+                <div className="pp-kpi"><b>{String(snapshot.counts.invoices).padStart(2,'0')}</b><span>Invoices issued</span></div>
               </div>
-              <div className="pp-row"><span>🚀 Launch programme — The Salt Road</span><Badge tone="brass">On track</Badge></div>
-              <div className="pp-row"><span>🎨 Creative pack v3</span><Badge tone="warn">In review</Badge></div>
-              <div className="pp-row" style={{display:'block'}}>
-                <div className="spread" style={{fontSize:'.76rem'}}><span>Campaign milestones</span><span className="faint">68%</span></div>
-                <div className="pp-bar"><i style={{width:'68%'}}/></div>
-              </div>
+              <div className="pp-row"><span>Enquiry → client record</span><span className="badge badge-info">Tracked</span></div>
+              <div className="pp-row"><span>Accepted proposal → project</span><span className="badge badge-ok">Versioned</span></div>
+              <div className="pp-row"><span>Verified payment → invoice</span><span className="badge badge-ok">Server-side</span></div>
             </div>
           </div>
         </div>
@@ -51,7 +48,12 @@ export default async function Home() {
 
       <section className="section-tight" style={{borderBottom:'1px solid var(--line)',background:'var(--surface)'}}>
         <div className="container grid grid-4">
-          {[['08','Specialist services'],['07','Delivery departments'],['04','Stage engagement process'],['100%','Client-owned assets & files']].map(([n,l]) => (
+          {[
+            [String(snapshot.services.length).padStart(2,'0'),'Published services'],
+            [String(snapshot.counts.departments).padStart(2,'0'),'Configured departments'],
+            [String(snapshot.counts.roles).padStart(2,'0'),'Permissioned roles'],
+            ['04','Connected workspaces'],
+          ].map(([n,l]) => (
             <div key={l}><div className="num">{n}</div><div className="small muted" style={{marginTop:6}}>{l}</div></div>
           ))}
         </div>
@@ -142,7 +144,7 @@ export default async function Home() {
             <Link href="/contact" className="btn btn-primary">Request a consultation →</Link>
             <Link href="/faq" className="btn btn-outline" style={{borderColor:'rgba(255,255,255,.28)',color:'#fff'}}>Read the FAQ</Link>
           </div>
-          <p className="small" style={{color:'var(--sidebar-muted)',marginTop:22}}>{BRAND.relationship}</p>
+          <p className="small" style={{color:'var(--sidebar-muted)',marginTop:22}}>{SITE.relationship}</p>
         </div>
       </section>
     </>

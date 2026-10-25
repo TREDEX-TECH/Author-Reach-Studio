@@ -23,7 +23,16 @@ first two workflows are real: the public service catalogue reads from the DB, an
 write to CRM through a trusted Edge Function. **See `docs/12-live-supabase-state.md`** for the
 current live state. This document remains the complete list of what is still required.
 
-## 1. Honest current status
+## 0c. Update — production front-end cleanup (25 Oct 2026)
+
+The §1–§2 tables below are the **historical baseline from before the live Supabase connection**.
+They have been superseded by `docs/12-live-supabase-state.md` and
+`docs/13-production-frontend.md`: the demo data module has been deleted, all dashboards now read
+live RLS-protected rows with honest empty states, middleware refreshes sessions and supports
+`REQUIRE_AUTH=true`, and 5 migrations are applied to a live Supabase project. This document is
+retained as the complete operational gap analysis — the remaining items in §3 onward still apply.
+
+## 1. Honest current status (historical baseline — see §0c)
 
 | Area | State today | Reality |
 |---|---|---|
@@ -47,7 +56,7 @@ current live state. This document remains the complete list of what is still req
 
 | Blueprint requirement | What exists now | What is still needed |
 |---|---|---|
-| **Public website** — Home, About, Services + detail, How It Works, Case Studies, Resources, FAQ, Contact, Privacy/Terms/Refund | All pages exist with demo copy | Real copy, real service catalogue (scope/deliverables/eligibility/duration/price), genuine case studies with written permission, lawyer-reviewed legal text, SEO + structured data, admin-editable content |
+| **Public website** — Home, About, Services + detail, How It Works, Case Studies, Resources, FAQ, Contact, Privacy/Terms/Refund | All pages exist with clean production-oriented copy | Real copy, real service catalogue (scope/deliverables/eligibility/duration/price), genuine case studies with written permission, lawyer-reviewed legal text, SEO + structured data, admin-editable content |
 | **Inquiry → CRM** | Form posts to `/.netlify/functions/inquiry`; validation, honeypot, rate limit, spam score | Live Supabase project + service key, CRM pipeline UI wired to real rows, notification + acknowledgement email, durable rate limiting |
 | **Client portal** — profile, books, proposals/versions, accept/decline, projects, milestones, deliverables, uploads, feedback/approvals, invoices, payments, reports, messages, settings | All screens exist | Auth + RLS so a client sees **only** their records; every create/edit action as a server action or RPC; real file storage with signed URLs; real messaging; settings persistence |
 | **Team workspace** — tasks, deadlines/priorities, projects, updates, uploads, internal review, work notes, conversations, department info, approvals | All screens exist | Task CRUD, review workflow where uploading ≠ completion, versioned deliverables, internal notes hidden from clients, conversation scoping, department/role assignment |
@@ -100,7 +109,7 @@ NEXT_PUBLIC_PAYSTACK_MODE            # test | live
 EMAIL_PROVIDER, EMAIL_API_KEY, EMAIL_FROM
 NEXT_PUBLIC_SITE_URL
 NEXT_PUBLIC_APP_ENV                  # development | staging | production
-NEXT_PUBLIC_DEMO_MODE                # set false when Supabase is live
+REQUIRE_AUTH                        # true = hard sign-in wall for private dashboards
 ```
 
 Also: Supabase Auth **URL allowlist** (exact domains, no wildcards), Paystack **webhook URL** pointing at `/.netlify/functions/paystack-webhook`, and email domain verification.
@@ -142,10 +151,10 @@ Also: Supabase Auth **URL allowlist** (exact domains, no wildcards), Paystack **
 | Phase | Concrete work | Exit test |
 |---|---|---|
 | **2 — Backend foundation** | Apply both migrations to dev/staging/prod; generate TypeScript DB types; Supabase Auth (invite, verify, reset, MFA for staff); `middleware.ts` session refresh + route protection; 7 RLS test personas; tighten 9 broad policies; CI running `npm test`, `tsc`, `build`; deploy to Netlify | App deploys; schema recreates from migrations; a client cannot read another client's row |
-| **3 — Public site + content** | Replace all demo copy with your content pack; service catalogue driven by DB; admin content editor; SEO/OG/structured data; inquiry → CRM row + acknowledgement email; durable rate limiting | A real enquiry lands in CRM and sends an email |
+| **3 — Public site + content** | Replace remaining synthetic service copy with your content pack; service catalogue driven by DB; admin content editor; SEO/OG/structured data; inquiry → CRM row + acknowledgement email; durable rate limiting | A real enquiry lands in CRM and sends an email |
 | **4 — Users, CRM, org** | Invite-only onboarding; clients/authors/books; CRM pipeline; departments, staff, configurable roles/permissions; permission UI | Isolation between users/departments verified by automated tests |
 | **5 — Proposals & delivery** | Service packages, versioned proposals (accepted versions immutable), accept/decline, projects, milestones, tasks, assignments, deadlines, deliverable versions, **private Storage buckets + signed URLs + MIME/size limits**, review workflow where upload ≠ completion, client feedback/approval | End-to-end: accepted proposal → task → review → approved delivery, with files that only the right people can open |
-| **6 — Finance** | Invoices/items from DB, Paystack test mode, init + verify + webhook, idempotency, refunds, reconciliation, receipts, payment history; switch `NEXT_PUBLIC_DEMO_MODE=false` | A test payment is verified exactly once; duplicate/forged webhooks cannot mark an invoice paid; frontend success page cannot change state |
+| **6 — Finance** | Invoices/items from DB, Paystack test mode, init + verify + webhook, idempotency, refunds, reconciliation, receipts, payment history; set `REQUIRE_AUTH=true` after accounts exist | A test payment is verified exactly once; duplicate/forged webhooks cannot mark an invoice paid; frontend success page cannot change state |
 | **7 — Comms & reporting** | Transactional email, in-app notifications (deduped by `event_key`), project conversations, notification prefs, reporting views + exports, campaign activity vs observed results vs external outcomes, audit UI | Correct notifications; reports reconcile with verified payment records |
 | **8 — Security, QA, launch** | All-role permission tests, storage policy tests, mobile/a11y, performance, production domains + allowlisted redirects, **backup restore test**, Paystack live switch, runbook | Core workflows pass end-to-end; security tests green; production settings verified |
 
@@ -172,7 +181,7 @@ Per "what I can start immediately" in `docs/11-vertical-slice-plan.md`, I added 
 - `supabase/migrations/20261025000003_rls_hardening.sql` — tightens all 9 broad
   `using (true)` policies plus internal client-note isolation.
 - `middleware.ts` — session refresh + route protection for the three private
-  interfaces; **dormant while `NEXT_PUBLIC_DEMO_MODE` is true** so the preview still works.
+  interfaces; **optional via `REQUIRE_AUTH`** so read-only previews still work until accounts exist.
 - `ci/github-actions-ci.yml` — tests, typecheck, verify, build, and a secret-string guard (see `ci/README.md` for the one-step enable).
 - `tests/rls-personas.test.mjs` — 7-persona harness (4 live-DB tests skip until a real
   Supabase project is configured).

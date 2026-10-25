@@ -144,7 +144,8 @@ test('currency configuration is consistent with the confirmed USD decision', () 
   assert.match(sql, /'payments\.currencies', '\["USD"\]'/, 'settings must enable USD');
   assert.doesNotMatch(sql, /default 'NGN'/, 'no stale NGN column defaults');
   assert.doesNotMatch(read('supabase/seed.sql'), /'NGN'/, 'seed data must be USD');
-  assert.match(read('lib/demo-data.ts'), /currency = 'USD'/, 'demo pricing must be USD');
+  assert.match(read('lib/data/live.ts'), /currency \|\| 'USD'/, 'live data must default to USD');
+  assert.doesNotMatch(read('lib/data/live.ts'), /'NGN'/, 'live data must not reintroduce NGN');
   assert.doesNotMatch(read('netlify/functions/paystack-initialize.ts'), /\['NGN'\]/, 'payment function fallback must be USD');
 });
 
@@ -205,7 +206,8 @@ test('the website name is exactly "Author Reach Studio" with no tagline attached
 
 test('Phase 2 foundation artefacts exist and fail safe', () => {
   const mw = read('middleware.ts');
-  assert.match(mw, /NEXT_PUBLIC_DEMO_MODE/, 'middleware must be dormant in demo mode');
+  assert.match(mw, /REQUIRE_AUTH/, 'middleware must support the optional production auth gate');
+  assert.doesNotMatch(mw, /DEMO_MODE/i, 'no demo-mode switch may remain');
   assert.match(mw, /auth\.getUser/, 'middleware must verify the session');
   for (const prefix of ['/portal', '/workspace', '/admin']) assert.ok(mw.includes(prefix));
 
@@ -228,7 +230,8 @@ test('Phase 2 foundation artefacts exist and fail safe', () => {
 test('live data layer: catalogue + inquiry route use publishable key only, no service-role in browser', () => {
   const cat = read('lib/data/catalogue.ts');
   assert.match(cat, /visibility=eq\.published/, 'anon must be restricted to published services');
-  assert.match(cat, /source: 'demo'/, 'must degrade to demo data when backend is absent');
+  assert.match(cat, /source: 'empty'/, 'must degrade to an honest empty state when backend is absent');
+  assert.doesNotMatch(cat, /demo/i, 'catalogue must not ship demo data');
   assert.ok(!cat.includes('SERVICE_ROLE'), 'catalogue must never use a service-role key');
 
   const route = read('app/api/inquiry/route.ts');
@@ -239,6 +242,23 @@ test('live data layer: catalogue + inquiry route use publishable key only, no se
   const form = read('components/inquiry-form.tsx');
   assert.match(form, /fetch\('\/api\/inquiry'/);
   assert.ok(!form.includes('demo confirmation'), 'must never claim a message was saved when it was not');
+  assert.ok(!existsSync(join(ROOT, 'lib/demo-data.ts')), 'the demo data module must be deleted');
+});
+
+test('front end has no demo mode and no invented client records', () => {
+  const files = [...walk('app').filter(f => f.endsWith('.tsx') || f.endsWith('.css')),
+                 ...walk('components').filter(f => f.endsWith('.tsx')),
+                 'lib/data/live.ts','middleware.ts','lib/data/catalogue.ts'].map(f => read(f));
+  const ui = files.join('\n');
+  const banned = [
+    'NEXT_PUBLIC_DEMO_MODE','demo-banner','Good morning, Amara','Amara Nwosu',
+    'Adebayo','Chidi Okafor','Emeka Obi','illustrative copy','to be confirmed',
+    'ARS-2026-0041','inv-1',
+  ];
+  for (const phrase of banned) assert.ok(!ui.includes(phrase), `stale demo content remains: ${phrase}`);
+  assert.doesNotMatch(ui, /lib\/demo-data/, 'no component may import the deleted demo data module');
+  assert.match(read('middleware.ts'), /REQUIRE_AUTH/, 'production auth gate must remain available');
+  assert.match(read('.env.example'), /NEXT_PUBLIC_CONTACT_EMAIL/, 'contact details must be environment-driven');
 });
 
 test('migration 004 provisions profiles and enforces the capability matrix', () => {
@@ -246,7 +266,7 @@ test('migration 004 provisions profiles and enforces the capability matrix', () 
   assert.match(sql, /create trigger on_auth_user_created/);
   assert.match(sql, /insert into public\.role_permissions/);
   assert.match(sql, /payment_entity_is_configured\(\)/);
-  assert.match(sql, /DRAFT/);
+  assert.match(sql, /legal_name not like 'DRAFT%'/, 'payment guard must reject placeholder legal entity');
   assert.ok(!sql.toLowerCase().includes('grant .* to anon') , 'no capability grants to anon');
 });
 

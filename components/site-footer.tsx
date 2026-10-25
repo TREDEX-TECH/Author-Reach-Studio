@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ArsLogo, TredexLogo } from './brand';
 import { footerNav } from '@/lib/navigation';
-import { BRAND } from '@/lib/demo-data';
+import { SITE } from '@/lib/config';
 
 export function SiteFooter() {
   return (
@@ -16,9 +16,9 @@ export function SiteFooter() {
             <div className="footer-partner">
               <TredexLogo size={52} />
               <div><div className="small" style={{color:'#fff',fontWeight:700}}>A Tredex brand</div>
-              <div className="small" style={{color:'#8896AE',fontSize:'.76rem'}}>{BRAND.relationship}</div></div>
+              <div className="small" style={{color:'#8896AE',fontSize:'.76rem'}}>{SITE.relationship}</div></div>
             </div>
-            <p style={{fontSize:'.8rem',color:'#8896AE',marginTop:18}}>{BRAND.email}<br/>{BRAND.address}</p>
+            <p style={{fontSize:'.8rem',color:'#8896AE',marginTop:18}}>{SITE.email}{SITE.address ? <><br/>{SITE.address}</> : null}</p>
           </div>
           {footerNav.map(col => (
             <div key={col.title}>
@@ -28,7 +28,7 @@ export function SiteFooter() {
           ))}
         </div>
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} {BRAND.name}. {BRAND.relationship}</span>
+          <span>© {new Date().getFullYear()} {SITE.name}. {SITE.relationship}</span>
           <span>We do not promise guaranteed sales, rankings or visibility outcomes.</span>
         </div>
       </div>

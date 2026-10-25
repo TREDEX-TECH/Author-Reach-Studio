@@ -44,6 +44,11 @@ export const portalNav: NavGroup[] = [
     {href:'/portal/books',label:'My books',icon:I.book},
     {href:'/portal/files',label:'Files & deliverables',icon:I.folder},
   ]},
+  { group:'Insights', items:[
+    {href:'/portal/results',label:'Campaign results',icon:I.chart},
+    {href:'/portal/reports',label:'Reports',icon:I.file},
+    {href:'/portal/notifications',label:'Notifications',icon:I.bell},
+  ]},
   { group:'Account', items:[
     {href:'/portal/invoices',label:'Invoices & payments',icon:I.cash},
     {href:'/portal/messages',label:'Messages',icon:I.msg},

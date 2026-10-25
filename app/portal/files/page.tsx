@@ -1,28 +1,39 @@
-import Link from 'next/link';
-import { AppHead, KpiRow } from '@/components/module-view';
-import { Panel, Badge, EmptyState } from '@/components/ui';
-export default function PortalFiles(){
-  const files = [
-    ['Launch creative pack v3.zip','18.4 MB','24 Oct 2026','Awaiting your review','warn'],
-    ['Metadata audit report.pdf','2.1 MB','12 Oct 2026','Approved','ok'],
-    ['Category & keyword set.xlsx','340 KB','12 Oct 2026','Approved','ok'],
-    ['Author bio — final.docx','48 KB','08 Oct 2026','Approved','ok'],
-    ['Post-launch report (Sep).pdf','1.8 MB','30 Sep 2026','Approved','ok'],
-  ];
+import { AppHead, KpiRow, SimpleTable } from '@/components/module-view';
+import { Panel, Badge } from '@/components/ui';
+import { getSnapshot } from '@/lib/data/live';
+export default async function PortalFiles(){
+  const s = await getSnapshot();
+  const clientFiles = s.files.filter(f => /client/i.test(f.visibility));
+  const clientDeliverables = s.deliverables.filter(d => /client/i.test(d.visibility));
+  const rows = clientDeliverables.map(d=>[
+    <span><strong>{d.title}</strong><span className="sub">{d.version} · {d.date}</span></span>,
+    d.project, d.version, d.date,
+    <Badge tone={d.tone}>{d.status}</Badge>,
+  ]);
   return <>
-    <AppHead title="Files & deliverables" subtitle="Review work, approve it or request revisions. Every version is kept."
-      action={<Link href="/portal/files" className="btn btn-primary btn-sm">Upload requested material</Link>}/>
-    <KpiRow items={[{label:'Files available',value:'18'},{label:'Awaiting review',value:'1',delta:'Action needed',negative:true},{label:'Approved',value:'15'},{label:'Uploaded by you',value:'2'}]}/>
-    <div className="callout" style={{marginBottom:20}}><span className="co-ico">✳</span><div><h4>Review needed: Launch creative pack v3</h4><p>Submitted 24 Oct 2026 by the Creative Design team. Please approve it or request revisions. Once approved it becomes a client-visible deliverable and the milestone can advance.</p>
-      <div className="row" style={{marginTop:12}}><Link href="/portal/files" className="btn btn-primary btn-sm">Approve</Link><Link href="/portal/files" className="btn btn-outline btn-sm">Request revisions</Link><Link href="/portal/files" className="btn btn-ghost btn-sm">Download</Link></div></div></div>
-    <Panel title="Your files" flush>
-      <div className="table-wrap"><table><thead><tr><th>File</th><th>Size</th><th>Added</th><th>Status</th><th>Action</th></tr></thead>
-      <tbody>{files.map(([n,s,d,st,tone])=>(
-        <tr key={n}><td><div className="file-row" style={{padding:0,border:'none'}}><span className="file-ico">{n.split('.').pop()?.slice(0,3).toUpperCase()}</span><span><strong style={{fontSize:'.85rem'}}>{n}</strong></span></div></td>
-        <td>{s}</td><td>{d}</td><td><Badge tone={tone}>{st}</Badge></td>
-        <td><Link href="/portal/files" className="btn btn-outline btn-sm">Download</Link></td></tr>
-      ))}</tbody></table></div>
-    </Panel>
-    <div className="notice notice-teal"><span><strong>Private by default.</strong> Your files live in private Supabase Storage buckets with short-lived signed links. A new upload creates a new version — it never overwrites the history of previous work.</span></div>
+    <AppHead title="Files & approvals" subtitle="Review approved deliverables and request changes. Files stay in private storage and are served through short-lived signed URLs."/>
+    <KpiRow items={[
+      {label:'Files available',value:String(clientFiles.length)},
+      {label:'Deliverables',value:String(s.counts.deliverables)},
+      {label:'Awaiting decision',value:String(clientDeliverables.filter(d=>/review|pending/i.test(d.status)).length)},
+      {label:'Approved',value:String(clientDeliverables.filter(d=>/approved|accepted/i.test(d.status)).length)},
+    ]}/>
+    <div className="split">
+      <Panel title="Your deliverables" flush><SimpleTable columns={['Deliverable','Project','Version','Updated','Status']} rows={rows}
+        empty={{title:'No deliverables shared yet',body:'When your team marks a deliverable as client-visible, it appears here. Internal drafts, staff-only notes and other clients’ files are never accessible from this page.'}}/></Panel>
+      <div>
+        <Panel title="Available files">
+          {clientFiles.length ? clientFiles.map(f=><div className="file-row" key={f.id}><span className="file-ico">{f.ext}</span><span style={{flex:1}}><strong style={{fontSize:'.86rem'}}>{f.name}</strong><span className="small faint" style={{display:'block'}}>{f.project} · {f.size} · {f.date}</span></span></div>)
+            : <p className="small faint" style={{margin:0}}>No client-visible files have been published yet. Private drafts and internal assets are not listed here.</p>}
+        </Panel>
+        <Panel title="How approval works">
+          <div className="revision-list" style={{marginTop:4}}>
+            <div className="rev"><div className="rev-h">1. Your team uploads a new version</div><div className="rev-p">Files are checked for type and size before upload. Versions are never silently overwritten.</div></div>
+            <div className="rev"><div className="rev-h">2. Internal review (when required)</div><div className="rev-p">Uploading a file does not complete a task requiring review. An authorised reviewer must approve it.</div></div>
+            <div className="rev"><div className="rev-h">3. You review and decide</div><div className="rev-p">Approve a version or request a revision. Decisions are recorded with a timestamp and user ID.</div></div>
+          </div>
+        </Panel>
+      </div>
+    </div>
   </>;
 }

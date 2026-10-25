@@ -1,73 +1,64 @@
 # Author Reach Studio
 
-> A full-stack author marketing, client management and business operations platform.
+> Full-stack author marketing, client management and business operations platform.
 > **Author Reach Studio** is a specialist brand of **Tredex**.
 
-This repository is the Phase 1 foundation built from the *Master Project Blueprint*. It currently runs on **demo data** so the design and information architecture can be reviewed before real credentials are connected.
-
----
+The front end is production-oriented: the public website reads live Supabase service catalogue
+records, enquiries write to the live CRM through a trusted Edge Function, and the client portal,
+team workspace and admin dashboard read live records through RLS with honest empty states. There
+is **no demo mode** and no invented client data. See `docs/13-production-frontend.md`.
 
 ## Quick start
 
 ```bash
 npm install
-cp .env.example .env.local     # fill in only when connecting real services
-npm run dev                    # http://localhost:3000
-```
-
-Demo mode is on by default (`NEXT_PUBLIC_DEMO_MODE=true`). No Supabase project is required to view the prototype.
-
-```bash
+cp .env.example .env.local    # fill browser-safe values; keep secrets in Netlify/Supabase
+npm run dev                   # http://localhost:3000
 npm run typecheck
 npm test
 npm run build
+node scripts/verify.mjs
 ```
 
-## What's in here
+Private dashboards are readable by default but show no private rows until a user signs in. Set
+`REQUIRE_AUTH=true` in production once accounts and email delivery are working to require sign-in.
+
+## Structure
 
 ```
-app/
-  (public)/                 Home, About, Services, Service detail, How It Works,
-                            Work, Resources, FAQ, Contact, Legal
-  (auth)/sign-in/           Sign-in / reset / invitation shell
-  portal/                   Author–client portal (projects, proposals, invoices,
-                            books, files, messages, settings)
-  workspace/                Team workspace (my tasks, projects, reviews, files)
-  admin/                    Management dashboard (CRM, pipeline, finance, team,
-                            services, reports, settings, audit log)
-components/                  Shared UI primitives + site header/footer + app shell
-lib/                         Types, navigation config, demo data, Supabase clients
-netlify/functions/           Trusted server-side: inquiry, payment init, webhook
-supabase/migrations/, supabase/functions/         Version-controlled schema — source of truth
-supabase/seed.sql            Safe synthetic test data (non-production only)
-docs/                        Charter, decisions, requirements, setup, security,
-                             content inventory, roadmap
-tests/                       Business-rule + permission unit tests (no deps)
+app/                         App Router: public site, sign-in, portal, workspace, admin, API routes
+components/                  Brand, header/footer, dashboard shell, forms, UI primitives
+lib/                         Config, live RLS-aware data layer, formatting, navigation, Supabase clients
+netlify/functions/           Trusted server-side: inquiry, Paystack init/webhook/callback
+supabase/migrations/         5 migrations — schema source of truth
+supabase/functions/inquiry/  Exact deployed Edge Function source
+docs/                        Charter, decisions, security, roadmap, operational readiness, live state
+tests/                       Architecture/security regression tests + RLS persona harness
 ```
 
-## Architecture in one paragraph
+## Architecture
 
-Next.js (App Router, TypeScript) renders all four interfaces on Netlify. Supabase provides Postgres, Auth, RLS and private Storage. All privileged operations (payment initialisation, webhook verification, role changes, inquiry intake) go through Netlify Functions using a server-only service-role key — **never** through the browser. Paystack processes payments; only a server-verified transaction can change an invoice's financial state. See `docs/05-security-model.md`.
-
-## Rules for any developer or AI assistant working here
-
-1. Read `docs/01-project-charter.md` and `docs/02-decisions-register.md` before implementing.
-2. Inspect the existing repo before adding files; reuse existing components and naming.
-3. All schema changes happen through a new file in `supabase/migrations/, supabase/functions/` — never by hand in the dashboard.
-4. Validate all inputs with Zod on the server; enforce authorisation server-side **and** in RLS.
-5. Never expose a secret through a `NEXT_PUBLIC_` variable.
-6. Add a test for every business rule and every access restriction you touch.
-7. Report files changed, migrations added, tests run, and manual setup still required.
-8. A feature is not done until its full workflow, permissions, error states and tests are checked.
+Next.js App Router + TypeScript runs on Netlify. Supabase provides Postgres, Auth, RLS and
+private Storage. Normal reads use the publishable key (and the signed-in user's JWT when
+available); privileged operations use trusted server functions with server-only secrets — never
+the browser. Paystack payments are verified server-side before an invoice changes state. See
+`docs/05-security-model.md` and `docs/12-live-supabase-state.md`.
 
 ## Environment variables
 
-See `.env.example`. Browser-safe values use `NEXT_PUBLIC_`. Everything else is server-only and must be set in Netlify's environment UI (or a secret manager), never committed.
+`.env.example` is the template. Browser-safe values use `NEXT_PUBLIC_`; secrets such as
+`SUPABASE_SERVICE_ROLE_KEY`, `PAYSTACK_SECRET_KEY` and `EMAIL_API_KEY` belong only in Netlify /
+Supabase environment settings. Contact details are set with `NEXT_PUBLIC_CONTACT_EMAIL`,
+`NEXT_PUBLIC_CONTACT_PHONE` and `NEXT_PUBLIC_CONTACT_ADDRESS`.
 
-## Deployment
+## Deployment readiness
 
-`netlify.toml` includes the Next.js plugin, security headers and the Paystack callback redirect. Configure production env vars in Netlify and allowlist the production URL + `/auth/callback` in Supabase Auth redirect settings.
+`netlify.toml` configures the Next.js plugin, security headers and Paystack callback. Before a
+real public launch, configure the production domain, email provider, three test accounts,
+Paystack test→live keys and webhook, the real legal entity, staging/production Supabase projects,
+backups/restore and CI. Full list in `docs/13-production-frontend.md`.
 
 ## Legal note
 
-Branding Author Reach Studio under Tredex does **not** create a separate legal entity. Legal disclosures, contracts, invoices and the Paystack payment recipient must reflect the actual registered service provider. Confirm this in `docs/02-decisions-register.md` (Decision 9).
+Author Reach Studio is a brand of Tredex, not automatically a separate legal entity. Contracts,
+invoices and Paystack recipient details must name the actual registered service provider.

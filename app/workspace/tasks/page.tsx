@@ -1,26 +1,30 @@
-import Link from 'next/link';
 import { AppHead, KpiRow, SimpleTable } from '@/components/module-view';
-import { Panel, Badge, EmptyState } from '@/components/ui';
-import { tasks } from '@/lib/demo-data';
-export default function WorkspaceTasks(){
+import { Panel, Badge } from '@/components/ui';
+import { getSnapshot } from '@/lib/data/live';
+export default async function WorkspaceTasks(){
+  const s = await getSnapshot();
+  const rows = s.tasks.map(t=>[
+    <span className="small faint">{t.id.slice(0,8).toUpperCase()}</span>,
+    <span><strong>{t.title}</strong>{t.requiresReview ? <span className="sub">Requires review</span> : null}</span>,
+    t.project, t.due,
+    <Badge tone={t.priority==='Urgent'?'danger':t.priority==='High'?'warn':'neutral'}>{t.priority}</Badge>,
+    <Badge tone={t.tone}>{t.status}</Badge>,
+  ]);
   return <>
-    <AppHead title="My tasks" subtitle="Each task has an owner, a status and an associated project."
-      action={<Link href="/workspace/tasks" className="btn btn-outline btn-sm">Board view</Link>}/>
-    <KpiRow items={[{label:'Total assigned',value:'5'},{label:'In progress',value:'1'},{label:'In review',value:'1'},{label:'Blocked / changes',value:'1',delta:'Needs action',negative:true}]}/>
-    <Panel title="Task list" flush>
-      <SimpleTable columns={['ID','Task','Project','Due','Priority','Status','']} rows={tasks.map(t=>[
-        <span className="small faint">{t.id}</span>,
-        <span><strong>{t.title}</strong></span>, t.project, t.due,
-        <Badge tone={t.priority==='Urgent'?'danger':t.priority==='High'?'warn':'neutral'}>{t.priority}</Badge>,
-        <Badge tone={t.tone}>{t.status}</Badge>,
-        <Link href="/workspace/tasks" className="btn btn-outline btn-sm">Open</Link>,
-      ])}/>
-    </Panel>
+    <AppHead title="Tasks" subtitle="Tasks your role is permitted to see, with owners, due dates and review requirements."/>
+    <KpiRow items={[
+      {label:'Visible tasks',value:String(s.counts.tasks)},
+      {label:'In progress',value:String(s.tasks.filter(t=>/progress/i.test(t.status)).length)},
+      {label:'In review',value:String(s.tasks.filter(t=>/review/i.test(t.status)).length)},
+      {label:'Require review',value:String(s.tasks.filter(t=>t.requiresReview).length)},
+    ]}/>
+    <Panel title="Task list" flush><SimpleTable columns={['Ref','Task','Project','Due','Priority','Status']} rows={rows}
+      empty={{title:'No tasks yet',body:'Tasks created and assigned in the database appear here. An empty list means there is no work assigned to a role you can see — we do not display sample tasks.'}}/></Panel>
     <div className="split">
       <Panel title="Task status workflow">
         <div className="row" style={{gap:6}}>
-          {['Backlog','To Do','In Progress','In Review','Changes Requested','Approved','Completed'].map((s,i)=>(
-            <span key={s} className="badge badge-neutral" style={{fontSize:'.7rem'}}>{s}{i<6&&<span style={{marginLeft:6}}>→</span>}</span>
+          {['Backlog','To Do','In Progress','In Review','Changes Requested','Approved','Completed'].map((x,i)=>(
+            <span key={x} className="badge badge-neutral" style={{fontSize:'.7rem'}}>{x}{i<6&&<span style={{marginLeft:6}}>→</span>}</span>
           ))}
         </div>
         <div className="notice" style={{marginTop:18,fontSize:'.82rem'}}><strong>Upload ≠ completion.</strong> A task that requires review stays in “In Review” until an authorised reviewer approves it. Deliverable versions and the approval decision are both recorded.</div>

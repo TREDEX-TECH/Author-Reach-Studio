@@ -77,7 +77,7 @@ with the real catalogue). Prices in USD: $250, $200, $350 starting prices; 5 cus
    `lib/data/catalogue.ts` using only the **publishable** key and RLS (`visibility=published`).
    The `/services` page shows a "Live catalogue — managed in Supabase" badge when connected.
    Verified rendered output includes `From $250`, `~14 days`, `Custom proposal` read from the DB.
-   Falls back to demo data (clearly labelled) if Supabase is unreachable.
+   If Supabase is unreachable it renders an honest empty state — there is no demo fallback.
 
 2. **Enquiry → CRM.** `components/inquiry-form.tsx` → `POST /api/inquiry` →
    Supabase Edge Function `inquiry` (v3) → `public.inquiries`.
@@ -115,18 +115,18 @@ anon. Drop it once no longer needed: `drop extension if exists http;`.
 
 - **No users.** `auth.users` and `profiles` are empty. The sign-in screen is still a design
   shell; invite-only onboarding, password reset and MFA enrollment are not wired.
-  `NEXT_PUBLIC_DEMO_MODE` stays `true` deliberately, so `middleware.ts` stays dormant and
-  the three dashboards remain viewable. Flipping it to `false` before Auth is built would
-  lock every private route behind a non-functional sign-in.
+  `REQUIRE_AUTH` stays `false` deliberately, so the three dashboards remain viewable in
+  read-only form while accounts are created. RLS hides all private rows from anonymous
+  visitors. Set `REQUIRE_AUTH=true` after invite/reset email delivery is tested.
 - **No Paystack connection.** No keys, no webhook, no test transaction. Owner said credentials
   will follow. `payment_entity_is_configured()` returns `false` on purpose — **no live charge
   is possible until the real legal entity is supplied.**
 - **No email provider.** No invites, resets, receipts or notifications.
-- **No real domain.** `metadataBase` still `authorreachstudio.com` (placeholder); Auth
-  `site_url` still localhost.
+- **No real domain.** `metadataBase` now reads `NEXT_PUBLIC_SITE_URL`; production must set
+  the real domain and update Auth `site_url` / redirect allowlist.
 - **No file uploads.** Buckets and policies exist, but no upload/signed-URL UI or server action.
-- **No proposals, projects, invoices, payments, messages or reports from the DB.** Those
-  screens still render `lib/demo-data.ts`.
+- **No proposals, projects, invoices, payments, messages or reports have been created yet.**
+  Those screens now read live database rows and show honest empty states; `lib/demo-data.ts` is deleted.
 - **No dev/staging/prod split, no backup restore test, no monitoring, no CI enabled yet**
   (workflow is staged at `ci/github-actions-ci.yml`; see `ci/README.md`).
 - **Draft legal entity.** `organizations` rows contain `DRAFT — replace with registered legal
@@ -141,7 +141,7 @@ anon. Drop it once no longer needed: `drop extension if exists http;`.
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xozbyrzpsopqugobjivs.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_…
-NEXT_PUBLIC_DEMO_MODE=true
+REQUIRE_AUTH=false
 NEXT_PUBLIC_APP_ENV=development
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
@@ -167,3 +167,11 @@ Function secrets where relevant).
 
 See `docs/11-vertical-slice-plan.md` for the week-by-week plan and `docs/10-operational-readiness.md`
 for the full requirements audit.
+
+---
+
+## Front-end cleanup (25 Oct 2026)
+
+Demo mode and invented records were removed after the snapshot above. All dashboard pages now
+read live RLS-protected data with honest empty states. See `docs/13-production-frontend.md` for
+the current front-end status and verification commands.

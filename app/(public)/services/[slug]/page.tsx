@@ -2,7 +2,6 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCatalogue, getServiceBySlug } from '@/lib/data/catalogue';
-import { services as demoServices } from '@/lib/demo-data';
 import { Badge, Crumbs } from '@/components/ui';
 import { InquiryForm } from '@/components/inquiry-form';
 
@@ -22,7 +21,7 @@ export default async function ServiceDetail({ params }: { params: Promise<{slug:
   const { slug } = await params;
   const { services, service: s } = await getServiceBySlug(slug);
   if (!s) notFound();
-  const others = (services.length ? services : demoServices).filter(x => x.slug !== slug).slice(0,3);
+  const others = services.filter(x => x.slug !== slug).slice(0,3);
   return (
     <>
       <section className="page-hero">
@@ -81,7 +80,7 @@ export default async function ServiceDetail({ params }: { params: Promise<{slug:
             <p className="lead">Share a few details and we will confirm eligibility, suggest a scope and send a written proposal before any payment is requested.</p>
             <div className="notice notice-teal" style={{marginTop:24}}><span><strong>Invoices only come after a proposal.</strong> You will never be asked to pay from a chat message or an unsolicited link. All payments are made from inside your secure client portal.</span></div>
           </div>
-          <InquiryForm variant="service" />
+          <InquiryForm variant="service" services={services.map(x=>({slug:x.slug,name:x.name}))} defaultService={s.name} />
         </div>
       </section>
 
