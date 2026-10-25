@@ -202,3 +202,25 @@ test('the website name is exactly "Author Reach Studio" with no tagline attached
               ...walk('components').filter(f => f.endsWith('.tsx')).map(f => read(f))].join('\n');
   assert.doesNotMatch(ui, /Tech-savvy author growth/);
 });
+
+test('Phase 2 foundation artefacts exist and fail safe', () => {
+  const mw = read('middleware.ts');
+  assert.match(mw, /NEXT_PUBLIC_DEMO_MODE/, 'middleware must be dormant in demo mode');
+  assert.match(mw, /auth\.getUser/, 'middleware must verify the session');
+  for (const prefix of ['/portal', '/workspace', '/admin']) assert.ok(mw.includes(prefix));
+
+  const ci = read('ci/github-actions-ci.yml');
+  for (const step of ['npm test', 'npm run typecheck', 'npm run build']) assert.ok(ci.includes(step));
+
+  const storage = read('supabase/migrations/20261025000002_storage.sql');
+  for (const bucket of ['author_assets','project_deliverables','client_documents','marketing_assets','public_site_assets']) {
+    assert.ok(storage.includes(bucket), `missing bucket ${bucket}`);
+  }
+  assert.match(storage, /create policy "storage_authenticated_read"/);
+  assert.ok(!/create policy[^;]*for delete/.test(storage), 'no authenticated delete on storage objects');
+
+  const hardening = read('supabase/migrations/20261025000003_rls_hardening.sql');
+  assert.match(hardening, /drop policy if exists "roles_read"/);
+  assert.match(hardening, /drop policy if exists "org_read"/);
+  assert.ok(read('tests/rls-personas.test.mjs').includes('client_a'));
+});

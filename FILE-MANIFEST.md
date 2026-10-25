@@ -1,7 +1,7 @@
 # Author Reach Studio — Complete File Manifest
 
 > Workspace location: `/home/user/author-reach-studio/` (sandboxed workspace, not your local hard drive).
-> **126 files** · regenerated 2026-10-25. Excludes `node_modules/`, `.next/`, build caches.
+> **133 files** · regenerated 2026-10-25. Excludes `node_modules/`, `.next/`, build caches.
 
 ## Directory tree
 
@@ -117,6 +117,9 @@
 │   ├── wb-EduAI Dark Mode Dashboard-3.jpg  (222,831 B, 5446 lines)
 │   ├── wb-StudySync Dark EdTech UI Design Board-2.jpg  (237,466 B, 5805 lines)
 │   └── wb-Tredex Logo.jpg  (219,257 B, 5517 lines)
+├── ci/
+│   ├── github-actions-ci.yml  (1,180 B, 35 lines)
+│   └── README.md  (1,197 B, 28 lines)
 ├── components/
 │   ├── app-shell.tsx  (3,444 B, 74 lines)
 │   ├── brand.tsx  (963 B, 19 lines)
@@ -131,7 +134,7 @@
 │   └── ui.tsx  (3,434 B, 100 lines)
 ├── docs/
 │   ├── 01-project-charter.md  (3,503 B, 53 lines)
-│   ├── 02-decisions-register.md  (5,850 B, 38 lines)
+│   ├── 02-decisions-register.md  (7,104 B, 45 lines)
 │   ├── 03-what-we-need-from-you.md  (5,531 B, 96 lines)
 │   ├── 04-supabase-setup-guide.md  (6,106 B, 99 lines)
 │   ├── 05-security-model.md  (4,326 B, 65 lines)
@@ -139,7 +142,8 @@
 │   ├── 07-content-inventory.md  (2,253 B, 23 lines)
 │   ├── 08-build-report.md  (6,278 B, 105 lines)
 │   ├── 09-visual-redesign.md  (6,471 B, 116 lines)
-│   └── 10-operational-readiness.md  (15,908 B, 170 lines)
+│   ├── 10-operational-readiness.md  (17,820 B, 200 lines)
+│   └── 11-vertical-slice-plan.md  (11,139 B, 157 lines)
 ├── lib/
 │   ├── supabase/
 │   │   ├── client.ts  (314 B, 10 lines)
@@ -167,18 +171,22 @@
 ├── supabase/
 │   ├── migrations/
 │   │   ├── 20261025000000_init.sql  (59,406 B, 1203 lines)
-│   │   └── 20261025000001_security_rpcs.sql  (2,845 B, 49 lines)
+│   │   ├── 20261025000001_security_rpcs.sql  (2,845 B, 49 lines)
+│   │   ├── 20261025000002_storage.sql  (6,486 B, 112 lines)
+│   │   └── 20261025000003_rls_hardening.sql  (2,806 B, 56 lines)
 │   ├── templates/
 │   │   ├── invite.html  (1,018 B, 9 lines)
 │   │   └── recovery.html  (774 B, 7 lines)
 │   ├── config.toml  (1,174 B, 51 lines)
 │   └── seed.sql  (4,409 B, 26 lines)
 ├── tests/
-│   └── blueprint.test.mjs  (11,726 B, 204 lines)
+│   ├── blueprint.test.mjs  (12,945 B, 226 lines)
+│   └── rls-personas.test.mjs  (1,966 B, 36 lines)
 ├── .env.example  (1,641 B, 34 lines)
 ├── .gitignore  (579 B, 39 lines)
 ├── DRIVE-CONTENTS.md  (6,152 B, 115 lines)
-├── FILE-MANIFEST.md  (17,121 B, 332 lines)
+├── FILE-MANIFEST.md  (18,225 B, 352 lines)
+├── middleware.ts  (2,532 B, 57 lines)
 ├── netlify.toml  (585 B, 24 lines)
 ├── next-env.d.ts  (262 B, 6 lines)
 ├── next.config.mjs  (362 B, 10 lines)
@@ -186,7 +194,7 @@
 ├── package.json  (856 B, 32 lines)
 ├── PUSH-TO-GITHUB.md  (3,509 B, 80 lines)
 ├── README.md  (3,978 B, 73 lines)
-├── START-HERE.md  (10,573 B, 154 lines)
+├── START-HERE.md  (10,935 B, 164 lines)
 └── tsconfig.json  (584 B, 21 lines)
 ```
 
@@ -197,10 +205,10 @@
 | 1 | `.env.example` | 1,641 B | 34 |
 | 2 | `.gitignore` | 579 B | 39 |
 | 3 | `DRIVE-CONTENTS.md` | 6,152 B | 115 |
-| 4 | `FILE-MANIFEST.md` | 17,121 B | 332 |
+| 4 | `FILE-MANIFEST.md` | 18,225 B | 352 |
 | 5 | `PUSH-TO-GITHUB.md` | 3,509 B | 80 |
 | 6 | `README.md` | 3,978 B | 73 |
-| 7 | `START-HERE.md` | 10,573 B | 154 |
+| 7 | `START-HERE.md` | 10,935 B | 164 |
 | 8 | `app/(auth)/sign-in/page.tsx` | 3,655 B | 49 |
 | 9 | `app/(public)/about/page.tsx` | 4,360 B | 49 |
 | 10 | `app/(public)/contact/page.tsx` | 2,391 B | 35 |
@@ -268,58 +276,65 @@
 | 72 | `brand-assets/wb-EduAI Dark Mode Dashboard-3.jpg` | 222,831 B | 5446 |
 | 73 | `brand-assets/wb-StudySync Dark EdTech UI Design Board-2.jpg` | 237,466 B | 5805 |
 | 74 | `brand-assets/wb-Tredex Logo.jpg` | 219,257 B | 5517 |
-| 75 | `components/app-shell.tsx` | 3,444 B | 74 |
-| 76 | `components/brand.tsx` | 963 B | 19 |
-| 77 | `components/dashboard-frame.tsx` | 876 B | 22 |
-| 78 | `components/inquiry-form.tsx` | 5,493 B | 91 |
-| 79 | `components/module-view.tsx` | 2,014 B | 43 |
-| 80 | `components/print-button.tsx` | 263 B | 4 |
-| 81 | `components/proceed-to-payment.tsx` | 2,139 B | 40 |
-| 82 | `components/site-footer.tsx` | 1,628 B | 37 |
-| 83 | `components/site-header.tsx` | 1,377 B | 34 |
-| 84 | `components/theme-toggle.tsx` | 1,089 B | 30 |
-| 85 | `components/ui.tsx` | 3,434 B | 100 |
-| 86 | `docs/01-project-charter.md` | 3,503 B | 53 |
-| 87 | `docs/02-decisions-register.md` | 5,850 B | 38 |
-| 88 | `docs/03-what-we-need-from-you.md` | 5,531 B | 96 |
-| 89 | `docs/04-supabase-setup-guide.md` | 6,106 B | 99 |
-| 90 | `docs/05-security-model.md` | 4,326 B | 65 |
-| 91 | `docs/06-roadmap.md` | 3,439 B | 27 |
-| 92 | `docs/07-content-inventory.md` | 2,253 B | 23 |
-| 93 | `docs/08-build-report.md` | 6,278 B | 105 |
-| 94 | `docs/09-visual-redesign.md` | 6,471 B | 116 |
-| 95 | `docs/10-operational-readiness.md` | 15,908 B | 170 |
-| 96 | `lib/demo-data.ts` | 11,282 B | 120 |
-| 97 | `lib/navigation.ts` | 3,494 B | 88 |
-| 98 | `lib/supabase/client.ts` | 314 B | 10 |
-| 99 | `lib/supabase/server.ts` | 812 B | 21 |
-| 100 | `lib/types.ts` | 892 B | 21 |
-| 101 | `netlify.toml` | 585 B | 24 |
-| 102 | `netlify/functions/_shared.ts` | 2,570 B | 61 |
-| 103 | `netlify/functions/inquiry.ts` | 2,836 B | 68 |
-| 104 | `netlify/functions/paystack-callback.ts` | 723 B | 17 |
-| 105 | `netlify/functions/paystack-initialize.ts` | 5,756 B | 108 |
-| 106 | `netlify/functions/paystack-webhook.ts` | 6,065 B | 122 |
-| 107 | `next-env.d.ts` | 262 B | 6 |
-| 108 | `next.config.mjs` | 362 B | 10 |
-| 109 | `package-lock.json` | 36,778 B | 1096 |
-| 110 | `package.json` | 856 B | 32 |
-| 111 | `public/favicon.ico` | 1,955 B | 55 |
-| 112 | `public/logo-ars-orange.png` | 25,296 B | 712 |
-| 113 | `public/logo-ars-white.png` | 25,235 B | 702 |
-| 114 | `public/logo-ars.png` | 61,956 B | 1580 |
-| 115 | `public/logo-tredex.png` | 117,072 B | 3207 |
-| 116 | `scripts/generate-manifest.py` | 3,196 B | 57 |
-| 117 | `scripts/push-to-github.sh` | 1,131 B | 39 |
-| 118 | `scripts/verify.mjs` | 860 B | 15 |
-| 119 | `supabase/config.toml` | 1,174 B | 51 |
-| 120 | `supabase/migrations/20261025000000_init.sql` | 59,406 B | 1203 |
-| 121 | `supabase/migrations/20261025000001_security_rpcs.sql` | 2,845 B | 49 |
-| 122 | `supabase/seed.sql` | 4,409 B | 26 |
-| 123 | `supabase/templates/invite.html` | 1,018 B | 9 |
-| 124 | `supabase/templates/recovery.html` | 774 B | 7 |
-| 125 | `tests/blueprint.test.mjs` | 11,726 B | 204 |
-| 126 | `tsconfig.json` | 584 B | 21 |
+| 75 | `ci/README.md` | 1,197 B | 28 |
+| 76 | `ci/github-actions-ci.yml` | 1,180 B | 35 |
+| 77 | `components/app-shell.tsx` | 3,444 B | 74 |
+| 78 | `components/brand.tsx` | 963 B | 19 |
+| 79 | `components/dashboard-frame.tsx` | 876 B | 22 |
+| 80 | `components/inquiry-form.tsx` | 5,493 B | 91 |
+| 81 | `components/module-view.tsx` | 2,014 B | 43 |
+| 82 | `components/print-button.tsx` | 263 B | 4 |
+| 83 | `components/proceed-to-payment.tsx` | 2,139 B | 40 |
+| 84 | `components/site-footer.tsx` | 1,628 B | 37 |
+| 85 | `components/site-header.tsx` | 1,377 B | 34 |
+| 86 | `components/theme-toggle.tsx` | 1,089 B | 30 |
+| 87 | `components/ui.tsx` | 3,434 B | 100 |
+| 88 | `docs/01-project-charter.md` | 3,503 B | 53 |
+| 89 | `docs/02-decisions-register.md` | 7,104 B | 45 |
+| 90 | `docs/03-what-we-need-from-you.md` | 5,531 B | 96 |
+| 91 | `docs/04-supabase-setup-guide.md` | 6,106 B | 99 |
+| 92 | `docs/05-security-model.md` | 4,326 B | 65 |
+| 93 | `docs/06-roadmap.md` | 3,439 B | 27 |
+| 94 | `docs/07-content-inventory.md` | 2,253 B | 23 |
+| 95 | `docs/08-build-report.md` | 6,278 B | 105 |
+| 96 | `docs/09-visual-redesign.md` | 6,471 B | 116 |
+| 97 | `docs/10-operational-readiness.md` | 17,820 B | 200 |
+| 98 | `docs/11-vertical-slice-plan.md` | 11,139 B | 157 |
+| 99 | `lib/demo-data.ts` | 11,282 B | 120 |
+| 100 | `lib/navigation.ts` | 3,494 B | 88 |
+| 101 | `lib/supabase/client.ts` | 314 B | 10 |
+| 102 | `lib/supabase/server.ts` | 812 B | 21 |
+| 103 | `lib/types.ts` | 892 B | 21 |
+| 104 | `middleware.ts` | 2,532 B | 57 |
+| 105 | `netlify.toml` | 585 B | 24 |
+| 106 | `netlify/functions/_shared.ts` | 2,570 B | 61 |
+| 107 | `netlify/functions/inquiry.ts` | 2,836 B | 68 |
+| 108 | `netlify/functions/paystack-callback.ts` | 723 B | 17 |
+| 109 | `netlify/functions/paystack-initialize.ts` | 5,756 B | 108 |
+| 110 | `netlify/functions/paystack-webhook.ts` | 6,065 B | 122 |
+| 111 | `next-env.d.ts` | 262 B | 6 |
+| 112 | `next.config.mjs` | 362 B | 10 |
+| 113 | `package-lock.json` | 36,778 B | 1096 |
+| 114 | `package.json` | 856 B | 32 |
+| 115 | `public/favicon.ico` | 1,955 B | 55 |
+| 116 | `public/logo-ars-orange.png` | 25,296 B | 712 |
+| 117 | `public/logo-ars-white.png` | 25,235 B | 702 |
+| 118 | `public/logo-ars.png` | 61,956 B | 1580 |
+| 119 | `public/logo-tredex.png` | 117,072 B | 3207 |
+| 120 | `scripts/generate-manifest.py` | 3,196 B | 57 |
+| 121 | `scripts/push-to-github.sh` | 1,131 B | 39 |
+| 122 | `scripts/verify.mjs` | 860 B | 15 |
+| 123 | `supabase/config.toml` | 1,174 B | 51 |
+| 124 | `supabase/migrations/20261025000000_init.sql` | 59,406 B | 1203 |
+| 125 | `supabase/migrations/20261025000001_security_rpcs.sql` | 2,845 B | 49 |
+| 126 | `supabase/migrations/20261025000002_storage.sql` | 6,486 B | 112 |
+| 127 | `supabase/migrations/20261025000003_rls_hardening.sql` | 2,806 B | 56 |
+| 128 | `supabase/seed.sql` | 4,409 B | 26 |
+| 129 | `supabase/templates/invite.html` | 1,018 B | 9 |
+| 130 | `supabase/templates/recovery.html` | 774 B | 7 |
+| 131 | `tests/blueprint.test.mjs` | 12,945 B | 226 |
+| 132 | `tests/rls-personas.test.mjs` | 1,966 B | 36 |
+| 133 | `tsconfig.json` | 584 B | 21 |
 
 ## Areas
 

@@ -5,6 +5,17 @@
 
 ---
 
+## 0. Your answers (25 Oct 2026) — plan adjusted
+
+| Question | Your answer | Effect |
+|---|---|---|
+| Paystack USD settlement | ✅ Confirmed available | Keeps USD. Still prove with a real test-mode transaction before live. |
+| Provider accounts | ✅ Most already exist | Send me the list + project refs; I only write setup steps for gaps. |
+| Build sequence | ✅ **Thin vertical slice first (~6–8 weeks)** | See `docs/11-vertical-slice-plan.md` — one complete journey, then scale. |
+| Legal entity | 🟡 Use a draft for now | Placeholders clearly marked; must be real before any real invoice/live payment. |
+
+Still open: **full vs partial payments** and **invite-only vs open registration** — both affect weeks 1–6.
+
 ## 1. Honest current status
 
 | Area | State today | Reality |
@@ -143,6 +154,25 @@ Also: Supabase Auth **URL allowlist** (exact domains, no wildcards), Paystack **
 6. Send the **content pack** (§3D) and the **people/permissions list** (§3E) — these can arrive in parallel with Phase 2.
 
 Once 1–5 are done I can immediately: apply migrations, generate types, wire Auth + middleware, protect all routes, and turn the first screens (sign-in, portal dashboard, invoices) into real database-backed pages — while you work on content.
+
+### Already done this session (no credentials required)
+
+Per "what I can start immediately" in `docs/11-vertical-slice-plan.md`, I added and pushed:
+
+- `supabase/migrations/20261025000002_storage.sql` — 5 private Storage buckets with
+  size/MIME limits, `storage.objects` RLS, path-scope helpers, and append-only
+  `file_metadata` policies (no authenticated delete path).
+- `supabase/migrations/20261025000003_rls_hardening.sql` — tightens all 9 broad
+  `using (true)` policies plus internal client-note isolation.
+- `middleware.ts` — session refresh + route protection for the three private
+  interfaces; **dormant while `NEXT_PUBLIC_DEMO_MODE` is true** so the preview still works.
+- `ci/github-actions-ci.yml` — tests, typecheck, verify, build, and a secret-string guard (see `ci/README.md` for the one-step enable).
+- `tests/rls-personas.test.mjs` — 7-persona harness (4 live-DB tests skip until a real
+  Supabase project is configured).
+- Removed the unused `PAYSTACK_WEBHOOK_SECRET` placeholder and a stale RPC comment.
+
+All 4 migrations parse cleanly (215 + 23 + 12 + 21 statements), 21 tests pass (4 correctly
+skipped), typecheck and production build are green.
 
 ---
 

@@ -36,3 +36,10 @@
 
 | 21 | Visual direction | ✅ **CONFIRMED 25 Oct 2026:** orange + white brand (sampled `#F4761F` from Tredex logo), real ARS + Tredex logos, light **and** dark themes, dashboard-inspired layout (sidebar, hero banner, KPI tiles, quick actions) — tech-savvy but simple. Applied across all four interfaces and the invoice. | See `docs/09-visual-redesign.md` | ✅ |
 | 22 | Favicon | ✅ **CONFIRMED:** AR monogram + book from the transparent ARS logo on an orange square. | Implemented as `app/icon.png`, `app/apple-icon.png`, `public/favicon.ico` | ✅ |
+
+| 23 | Paystack USD settlement | ✅ **CONFIRMED 25 Oct 2026:** owner confirms the merchant account can accept and settle USD. ⚠️ Still prove it with a real **test-mode USD transaction** and a settlement/payout check before enabling live keys. | Finance, Paystack | ✅ |
+| 24 | Provider accounts | ✅ **CONFIRMED:** most accounts already exist. Owner to supply the exact list + project refs/URLs. Only missing ones need setup checklists. | Phase 2 | ✅ |
+| 25 | Build sequence | ✅ **CONFIRMED:** **thin vertical slice first** (~6–8 weeks) — make one complete journey real end-to-end before scaling out. See `docs/11-vertical-slice-plan.md`. | Roadmap | ✅ |
+| 26 | Legal entity | 🟡 **DRAFT for now.** Build with clearly marked placeholders, but **replace with the real registered entity before any real invoice or live payment**. Must match the Paystack recipient exactly. | Invoices, legal, Paystack | 🟡 |
+| 27 | Payment rule | ❓ **Still open:** full payment only vs instalments. Recommendation: full at launch; schema already supports partial. | Invoices, Paystack | ❓ |
+| 28 | Registration model | ❓ **Still open:** invite/approval-only (recommended) vs open signup. Determines the Auth build in weeks 1–4. | Auth | ❓ |

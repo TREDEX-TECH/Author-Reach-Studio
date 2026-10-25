@@ -152,3 +152,13 @@ Read **`docs/10-operational-readiness.md`** — it is the complete answer to "wh
 need to make this actually work?". It lists the current gaps (demo data, no auth, no live
 DB/storage/email/payments), the six buckets of inputs needed from you, the Phase 2–8 build
 plan, the minimum checklist to unblock Phase 2, and the definition of "fully operational".
+
+
+---
+
+## 9. Chosen path: thin vertical slice
+
+You confirmed Paystack USD settlement, that most provider accounts exist, and that we should
+build a **thin vertical slice first (~6–8 weeks)** with a **draft legal entity**. The concrete
+week-by-week plan, the exact inputs I need to start, and the definition of done are in
+**`docs/11-vertical-slice-plan.md`**.
