@@ -249,3 +249,14 @@ test('migration 004 provisions profiles and enforces the capability matrix', () 
   assert.match(sql, /DRAFT/);
   assert.ok(!sql.toLowerCase().includes('grant .* to anon') , 'no capability grants to anon');
 });
+
+test('deployed Edge Function source is version-controlled and has no external imports', () => {
+  const src = read('supabase/functions/inquiry/index.ts');
+  assert.match(src, /Deno\.serve/);
+  assert.match(src, /SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(src, /rateLimit/);
+  assert.match(src, /website/, 'honeypot must exist');
+  assert.match(src, /consent !== true/, 'consent must be enforced server-side');
+  assert.ok(!/esm\.sh|npm:|https:\/\/deno\.land/.test(src), 'must not import remote modules (BOOT_ERROR risk)');
+  assert.match(read('supabase/functions/README.md'), /no-verify-jwt/);
+});

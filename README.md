@@ -38,7 +38,7 @@ app/
 components/                  Shared UI primitives + site header/footer + app shell
 lib/                         Types, navigation config, demo data, Supabase clients
 netlify/functions/           Trusted server-side: inquiry, payment init, webhook
-supabase/migrations/         Version-controlled schema — source of truth
+supabase/migrations/, supabase/functions/         Version-controlled schema — source of truth
 supabase/seed.sql            Safe synthetic test data (non-production only)
 docs/                        Charter, decisions, requirements, setup, security,
                              content inventory, roadmap
@@ -53,7 +53,7 @@ Next.js (App Router, TypeScript) renders all four interfaces on Netlify. Supabas
 
 1. Read `docs/01-project-charter.md` and `docs/02-decisions-register.md` before implementing.
 2. Inspect the existing repo before adding files; reuse existing components and naming.
-3. All schema changes happen through a new file in `supabase/migrations/` — never by hand in the dashboard.
+3. All schema changes happen through a new file in `supabase/migrations/, supabase/functions/` — never by hand in the dashboard.
 4. Validate all inputs with Zod on the server; enforce authorisation server-side **and** in RLS.
 5. Never expose a secret through a `NEXT_PUBLIC_` variable.
 6. Add a test for every business rule and every access restriction you touch.

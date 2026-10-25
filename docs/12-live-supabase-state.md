@@ -97,6 +97,10 @@ Supabase injects `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` into Edge Functi
 runtime, so no secret is stored in the repo. `verify_jwt = false` is intentional — it is a
 public contact form — but all validation, honeypot and rate limiting happen server-side.
 
+The deployed source is now version-controlled at **`supabase/functions/inquiry/index.ts`**
+(exact v3 body, retrieved from the live project) with deployment notes in
+`supabase/functions/README.md`. This keeps the repo as the source of truth.
+
 The original `netlify/functions/inquiry.ts` remains as the Netlify deployment alternative;
 the site currently uses the same-origin `/api/inquiry` proxy so it works in both environments.
 

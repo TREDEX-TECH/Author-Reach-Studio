@@ -1,7 +1,7 @@
 # Author Reach Studio — Complete File Manifest
 
 > Workspace location: `/home/user/author-reach-studio/` (sandboxed workspace, not your local hard drive).
-> **138 files** · regenerated 2026-10-25. Excludes `node_modules/`, `.next/`, build caches.
+> **140 files** · regenerated 2026-10-25. Excludes `node_modules/`, `.next/`, build caches.
 
 ## Directory tree
 
@@ -147,7 +147,7 @@
 │   ├── 09-visual-redesign.md  (6,471 B, 116 lines)
 │   ├── 10-operational-readiness.md  (18,240 B, 207 lines)
 │   ├── 11-vertical-slice-plan.md  (11,139 B, 157 lines)
-│   └── 12-live-supabase-state.md  (8,767 B, 165 lines)
+│   └── 12-live-supabase-state.md  (9,009 B, 169 lines)
 ├── lib/
 │   ├── data/
 │   │   └── catalogue.ts  (3,236 B, 71 lines)
@@ -175,6 +175,10 @@
 │   ├── push-to-github.sh  (1,131 B, 39 lines)
 │   └── verify.mjs  (860 B, 15 lines)
 ├── supabase/
+│   ├── functions/
+│   │   ├── inquiry/
+│   │   │   └── index.ts  (3,446 B, 84 lines)
+│   │   └── README.md  (1,140 B, 26 lines)
 │   ├── migrations/
 │   │   ├── 20261025000000_init.sql  (59,406 B, 1203 lines)
 │   │   ├── 20261025000001_security_rpcs.sql  (2,845 B, 49 lines)
@@ -187,13 +191,13 @@
 │   ├── config.toml  (1,174 B, 51 lines)
 │   └── seed.sql  (4,409 B, 26 lines)
 ├── tests/
-│   ├── blueprint.test.mjs  (14,376 B, 251 lines)
+│   ├── blueprint.test.mjs  (14,976 B, 262 lines)
 │   └── rls-personas.test.mjs  (1,966 B, 36 lines)
 ├── .env.example  (1,641 B, 34 lines)
 ├── .env.local  (502 B, 10 lines)
 ├── .gitignore  (579 B, 39 lines)
 ├── DRIVE-CONTENTS.md  (6,152 B, 115 lines)
-├── FILE-MANIFEST.md  (18,828 B, 364 lines)
+├── FILE-MANIFEST.md  (18,951 B, 366 lines)
 ├── middleware.ts  (2,532 B, 57 lines)
 ├── netlify.toml  (585 B, 24 lines)
 ├── next-env.d.ts  (262 B, 6 lines)
@@ -201,7 +205,7 @@
 ├── package-lock.json  (36,778 B, 1096 lines)
 ├── package.json  (856 B, 32 lines)
 ├── PUSH-TO-GITHUB.md  (3,509 B, 80 lines)
-├── README.md  (3,978 B, 73 lines)
+├── README.md  (4,020 B, 73 lines)
 ├── START-HERE.md  (11,640 B, 179 lines)
 └── tsconfig.json  (584 B, 21 lines)
 ```
@@ -214,9 +218,9 @@
 | 2 | `.env.local` | 502 B | 10 |
 | 3 | `.gitignore` | 579 B | 39 |
 | 4 | `DRIVE-CONTENTS.md` | 6,152 B | 115 |
-| 5 | `FILE-MANIFEST.md` | 18,828 B | 364 |
+| 5 | `FILE-MANIFEST.md` | 18,951 B | 366 |
 | 6 | `PUSH-TO-GITHUB.md` | 3,509 B | 80 |
-| 7 | `README.md` | 3,978 B | 73 |
+| 7 | `README.md` | 4,020 B | 73 |
 | 8 | `START-HERE.md` | 11,640 B | 179 |
 | 9 | `app/(auth)/sign-in/page.tsx` | 3,655 B | 49 |
 | 10 | `app/(public)/about/page.tsx` | 4,360 B | 49 |
@@ -310,7 +314,7 @@
 | 98 | `docs/09-visual-redesign.md` | 6,471 B | 116 |
 | 99 | `docs/10-operational-readiness.md` | 18,240 B | 207 |
 | 100 | `docs/11-vertical-slice-plan.md` | 11,139 B | 157 |
-| 101 | `docs/12-live-supabase-state.md` | 8,767 B | 165 |
+| 101 | `docs/12-live-supabase-state.md` | 9,009 B | 169 |
 | 102 | `lib/data/catalogue.ts` | 3,236 B | 71 |
 | 103 | `lib/demo-data.ts` | 11,282 B | 120 |
 | 104 | `lib/navigation.ts` | 3,494 B | 88 |
@@ -337,17 +341,19 @@
 | 125 | `scripts/push-to-github.sh` | 1,131 B | 39 |
 | 126 | `scripts/verify.mjs` | 860 B | 15 |
 | 127 | `supabase/config.toml` | 1,174 B | 51 |
-| 128 | `supabase/migrations/20261025000000_init.sql` | 59,406 B | 1203 |
-| 129 | `supabase/migrations/20261025000001_security_rpcs.sql` | 2,845 B | 49 |
-| 130 | `supabase/migrations/20261025000002_storage.sql` | 6,486 B | 112 |
-| 131 | `supabase/migrations/20261025000003_rls_hardening.sql` | 2,806 B | 56 |
-| 132 | `supabase/migrations/20261025000004_auth_and_capabilities.sql` | 5,855 B | 142 |
-| 133 | `supabase/seed.sql` | 4,409 B | 26 |
-| 134 | `supabase/templates/invite.html` | 1,018 B | 9 |
-| 135 | `supabase/templates/recovery.html` | 774 B | 7 |
-| 136 | `tests/blueprint.test.mjs` | 14,376 B | 251 |
-| 137 | `tests/rls-personas.test.mjs` | 1,966 B | 36 |
-| 138 | `tsconfig.json` | 584 B | 21 |
+| 128 | `supabase/functions/README.md` | 1,140 B | 26 |
+| 129 | `supabase/functions/inquiry/index.ts` | 3,446 B | 84 |
+| 130 | `supabase/migrations/20261025000000_init.sql` | 59,406 B | 1203 |
+| 131 | `supabase/migrations/20261025000001_security_rpcs.sql` | 2,845 B | 49 |
+| 132 | `supabase/migrations/20261025000002_storage.sql` | 6,486 B | 112 |
+| 133 | `supabase/migrations/20261025000003_rls_hardening.sql` | 2,806 B | 56 |
+| 134 | `supabase/migrations/20261025000004_auth_and_capabilities.sql` | 5,855 B | 142 |
+| 135 | `supabase/seed.sql` | 4,409 B | 26 |
+| 136 | `supabase/templates/invite.html` | 1,018 B | 9 |
+| 137 | `supabase/templates/recovery.html` | 774 B | 7 |
+| 138 | `tests/blueprint.test.mjs` | 14,976 B | 262 |
+| 139 | `tests/rls-personas.test.mjs` | 1,966 B | 36 |
+| 140 | `tsconfig.json` | 584 B | 21 |
 
 ## Areas
 
